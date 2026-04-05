@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>"עוגן-פלוס" למנהל/ת — תוכנית התערבות בית-ספרית</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --teal:       #0F766E;
+  --teal-light: #CCFBF1;
+  --teal-mid:   #5EEAD4;
+  --blue:       #1E40AF;
+  --blue-light: #DBEAFE;
+  --amber:      #B45309;
+  --amber-light:#FEF3C7;
+  --red:        #B91C1C;
+  --red-light:  #FEE2E2;
+  --green:      #166534;
+  --green-light:#DCFCE7;
+  --gray-50:    #F8FAFC;
+  --gray-100:   #F1F5F9;
+  --gray-200:   #E2E8F0;
+  --gray-400:   #94A3B8;
+  --gray-600:   #475569;
+  --gray-800:   #1E293B;
+  --white:      #FFFFFF;
+  --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:  0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Heebo', sans-serif;
+  font-size: 14px;
+  color: var(--gray-800);
+  background: var(--gray-50);
+  min-height: 100vh;
+}
+
+/* ─── Header ─── */
+.app-header {
+  background: linear-gradient(135deg, #0F766E 0%, #1E40AF 100%);
+  color: white;
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-md);
+}
+.header-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+.header-sub   { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+.header-badge { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 500; }
+
+/* ─── Tab Bar ─── */
+.tab-bar {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  padding: 0 32px;
+  gap: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+.tab-btn {
+  padding: 14px 20px;
+  border: none;
+  background: transparent;
+  font-family: 'Heebo', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--teal); }
+.tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+/* ─── Content ─── */
+.tab-pane { display: none; padding: 28px 32px 48px; max-width: 1300px; margin: 0 auto; }
+.tab-pane.active { display: block; }
+
+/* ─── Cards ─── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title .icon { width: 20px; height: 20px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
+
+/* ─── Metric Cards ─── */
+.metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.metric-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+.metric-card .m-label { font-size: 11px; color: var(--gray-600); margin-bottom: 6px; }
+.metric-card .m-value { font-size: 28px; font-weight: 700; line-height: 1; }
+.metric-card .m-sub   { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+.m-teal   { color: var(--teal); }
+.m-blue   { color: var(--blue); }
+.m-amber  { color: var(--amber); }
+.m-red    { color: var(--red); }
+.m-green  { color: var(--green); }
+
+/* ─── Badges ─── */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge-red    { background: var(--red-light);   color: var(--red);   }
+.badge-amber  { background: var(--amber-light); color: var(--amber); }
+.badge-green  { background: var(--green-light); color: var(--green); }
+.badge-blue   { background: var(--blue-light);  color: var(--blue);  }
+.badge-teal   { background: var(--teal-light);  color: var(--teal);  }
+.badge-gray   { background: var(--gray-100);    color: var(--gray-600); }
+
+/* ─── Grid layouts ─── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+/* ─── Section title ─── */
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--gray-200);
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+  margin-top: 28px;
+}
+.section-title:first-child { margin-top: 0; }
+
+/* ─── Class list ─── */
+.class-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.class-chip {
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .12s;
+}
+.class-chip:hover, .class-chip.selected { background: var(--teal-light); border-color: var(--teal-mid); color: var(--teal); }
+
+/* ─── Heatmap ─── */
+.heatmap-wrap { overflow-x: auto; }
+.heatmap { border-collapse: collapse; width: 100%; min-width: 700px; }
+.heatmap th {
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-600);
+  text-align: center;
+  background: var(--gray-50);
+  border-bottom: 2px solid var(--gray-200);
+}
+.heatmap th.grade-col { text-align: right; min-width: 70px; }
+.heatmap td { padding: 7px 8px; text-align: center; border-bottom: 1px solid var(--gray-100); }
+.heatmap td.grade-label { font-weight: 600; font-size: 13px; text-align: right; padding-right: 12px; }
+.heatmap tr:last-child td { border-bottom: none; }
+.hm-cell {
+  display: inline-block;
+  width: 52px;
+  padding: 4px 2px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+.hm-0  { background: #F0FDF4; color: #166534; }
+.hm-1  { background: #FEF9C3; color: #854D0E; }
+.hm-2  { background: #FEF3C7; color: #92400E; }
+.hm-3  { background: #FECACA; color: #991B1B; }
+.hm-4  { background: #FCA5A5; color: #7F1D1D; }
+.hm-na { background: var(--gray-100); color: var(--gray-400); font-size: 10px; }
+
+/* ─── Insight boxes ─── */
+.insight-box {
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border-right: 4px solid transparent;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.insight-box.critical { background: #FFF1F2; border-color: #F43F5E; }
+.insight-box.warning  { background: #FFFBEB; border-color: #F59E0B; }
+.insight-box.info     { background: #EFF6FF; border-color: #3B82F6; }
+.insight-box.positive { background: #F0FDF4; border-color: #22C55E; }
+.insight-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.insight-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.insight-desc  { font-size: 12px; color: var(--gray-600); line-height: 1.6; }
+
+/* ─── Strength pills ─── */
+.strength-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.strength-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal-light);
+  border: 1px solid var(--teal-mid);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--teal);
+}
+.strength-pill .s-count {
+  background: var(--teal);
+  color: white;
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* ─── Class detail card ─── */
+.class-detail-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: box-shadow .15s;
+}
+.class-detail-card:hover { box-shadow: var(--shadow-md); }
+.class-card-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.class-card-name { font-size: 16px; font-weight: 700; }
+.class-card-body { padding: 14px 18px; }
+.domain-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.domain-name { font-size: 11px; color: var(--gray-600); width: 70px; flex-shrink: 0; text-align: right; }
+.domain-bar-wrap { flex: 1; height: 14px; background: var(--gray-100); border-radius: 3px; overflow: hidden; position: relative; }
+.domain-bar { height: 100%; border-radius: 3px; }
+.domain-pct { font-size: 11px; font-weight: 600; width: 34px; text-align: left; }
+
+/* ─── Table ─── */
+.plan-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.plan-table th {
+  background: var(--gray-50);
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-600);
+  border-bottom: 2px solid var(--gray-200);
+  text-align: right;
+  white-space: nowrap;
+}
+.plan-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.plan-table tr:last-child td { border-bottom: none; }
+.plan-table tr:hover td { background: var(--gray-50); }
+.priority-high   { color: var(--red);   font-weight: 700; }
+.priority-medium { color: var(--amber); font-weight: 600; }
+.priority-low    { color: var(--green); font-weight: 600; }
+
+/* ─── Legend ─── */
+.legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; font-size: 11px; color: var(--gray-600); }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-box { width: 14px; height: 14px; border-radius: 3px; }
+
+/* ─── Two-col insight ─── */
+.two-col-insights { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+/* ─── Goals ─── */
+.goal-card {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.goal-num { font-size: 11px; opacity: 0.8; margin-bottom: 4px; font-weight: 600; }
+.goal-text { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 8px; }
+.goal-sub  { font-size: 11px; opacity: 0.85; line-height: 1.5; }
+
+/* ─── Grade filter ─── */
+.grade-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+.grade-btn {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--gray-200);
+  background: var(--white);
+  font-family: 'Heebo', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .12s;
+  color: var(--gray-600);
+}
+.grade-btn.active { background: var(--teal); border-color: var(--teal); color: white; }
+
+.no-data { color: var(--gray-400); font-size: 12px; font-style: italic; }
+.alert-chip { background: #FFF1F2; border: 1px solid #FCA5A5; color: var(--red); border-radius: 6px; padding: 2px 8px; font-size: 10px; font-weight: 600; }
+.data-warn  { background: #FFFBEB; border: 1px solid #FCD34D; color: var(--amber); border-radius: 6px; padding: 2px 8px; font-size: 10px; font-weight: 600; }
+.editable-col { color: var(--teal); }
+td[contenteditable] { transition: background .15s; border-radius: 4px; }
+td[contenteditable]:hover { background: var(--gray-50); }
+
+/* ─── Welcome screen ─── */
+#welcomeScreen { min-height:100vh; background:linear-gradient(160deg,#F0FDFA 0%,#EFF6FF 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px; }
+.welcome-anchor { font-size:56px; line-height:1; margin-bottom:10px; text-align:center; }
+.welcome-title  { font-size:24px; font-weight:700; color:var(--teal); text-align:center; margin-bottom:6px; }
+.welcome-sub    { font-size:13px; color:var(--gray-600); text-align:center; margin-bottom:32px; }
+.welcome-cards  { display:grid; grid-template-columns:1fr 1fr; gap:18px; width:100%; max-width:800px; margin-bottom:24px; }
+.upload-card { background:var(--white); border:1px solid var(--gray-200); border-radius:14px; padding:22px; box-shadow:var(--shadow); }
+.upload-card h3 { font-size:14px; font-weight:600; color:var(--gray-800); margin-bottom:6px; }
+.upload-card p  { font-size:12px; color:var(--gray-600); line-height:1.55; margin-bottom:12px; }
+.upload-label { display:inline-block; padding:7px 16px; border-radius:8px; border:1.5px solid var(--teal); color:var(--teal); font-size:12px; font-weight:600; cursor:pointer; transition:background .12s; margin-bottom:10px; }
+.upload-label:hover { background:var(--teal-light); }
+.file-list { font-size:11px; color:var(--gray-600); line-height:1.8; }
+.file-ok::before  { content:'✅ '; }
+.file-err::before { content:'⚠️ '; }
+.welcome-actions { display:flex; gap:12px; justify-content:center; margin-bottom:12px; }
+.btn-process { padding:12px 32px; border-radius:10px; background:linear-gradient(135deg,var(--teal) 0%,var(--blue) 100%); color:white; font-family:'Heebo',sans-serif; font-size:14px; font-weight:700; border:none; cursor:pointer; }
+.btn-process:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-demo { padding:12px 22px; border-radius:10px; background:white; color:var(--gray-600); font-family:'Heebo',sans-serif; font-size:13px; font-weight:500; border:1.5px solid var(--gray-200); cursor:pointer; }
+.btn-demo:hover { border-color:var(--teal); color:var(--teal); }
+#processStatus { font-size:12px; color:var(--teal); text-align:center; min-height:18px; }
+.demo-badge { background:var(--amber-light); color:var(--amber); font-size:11px; font-weight:600; padding:2px 10px; border-radius:20px; margin-right:6px; }
+
+@media print {
+  #welcomeScreen { display:none !important; }
+  .tab-bar, .grade-filter, #classFilter, button, #saveStatus,
+  input[type=file], .grade-btn, .upload-label { display:none !important; }
+  .tab-pane { display:none !important; }
+  .app-header { display:block !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  #mainApp { display:block !important; }
+  .plan-table th, .plan-table td { font-size:10px; padding:5px 7px; }
+  .card { box-shadow:none; border:1px solid #ccc; }
+  .class-detail-card { break-inside:avoid; margin-bottom:12px; }
+  [contenteditable] { border:none; outline:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════ WELCOME SCREEN ════════ -->
+<div id="welcomeScreen">
+  <!-- Logo bar -->
+  <div style="display:flex;justify-content:space-between;align-items:center;width:100%;max-width:820px;margin-bottom:24px;">
+
+    <!-- Left: Ministry of Education -->
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <img src="data:image/png;base64,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" alt="משרד החינוך — מינהל פדגוגי" style="height:80px;object-fit:contain;">
+    </div>
+
+    <!-- Center: anchor + title -->
+    <div style="text-align:center;">
+      <div class="welcome-anchor">⚓</div>
+      <div class="welcome-title">"עוגן-פלוס" למנהל/ת — תוכנית התערבות בית-ספרית</div>
+    </div>
+
+    <!-- Right: Yesodi + Al-Yesodi -->
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="data:image/png;base64,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" alt="יסודי עכשווי" style="height:70px;object-fit:contain;">
+      <img src="data:image/png;base64,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" alt="אגף א' חינוך על יסודי" style="height:70px;object-fit:contain;">
+    </div>
+
+  </div>
+
+  <div class="welcome-cards">
+    <div class="upload-card">
+      <h3>📁 שלב 1 — קבצי כיתות</h3>
+      <p>בחר/י את כל קבצי ה-XLS שיוצאו מכלי העוגן, כיתה כיתה (ניתן לסמן מספר קבצים יחד). שמות הקבצים צריכים לכלול את שם הכיתה, למשל: <strong>א1.xls, ב2.xls, כיתה_ג3.xls</strong></p>
+      <div style="background:#FFF1F2;border:1px solid #FCA5A5;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:#B91C1C;line-height:1.6;">
+        <strong>⚠️ שימו לב — פרטיות:</strong> יש להעלות אך ורק את קבצי האקסל ה<strong><u>אנונימיים</u></strong> שהורדו מכלי העוגן, לשמירה על פרטיות הלומדים.<br>
+        <span style="color:#5F5E5A;margin-top:4px;display:block;">🔒 הנתונים מעובדים <strong>מקומית בלבד</strong> על המחשב שלך ואינם נשלחים לרשת או לענן כלשהו. עם זאת, לנקיטת זהירות מירבית, יש להעלות קבצים ללא פרטים מזהים.</span>
+      </div>
+      <label class="upload-label" for="classFilesInput">📂 בחירת קבצי כיתות</label>
+      <input type="file" id="classFilesInput" multiple accept=".xls,.xlsx" style="display:none;" onchange="handleClassFiles(this)">
+      <div id="classFilesList" class="file-list"></div>
+    </div>
+    <div class="upload-card">
+      <h3>🏫 שלב 2 — קובץ/י בית-ספרי (אופציונלי)</h3>
+      <p>בחר/י את הקובץ: <strong>"אקסל בית-ספרי לפי קבוצות עם מאפיינים דומים"</strong> שיוצא מדשבורד העוגן. קובץ זה מאפשר להציג את חלוקת התלמידים לקבוצות מאפיינים.</p>
+      <div style="background:#FFF1F2;border:1px solid #FCA5A5;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:#B91C1C;line-height:1.6;">
+        <strong>⚠️ שימו לב — פרטיות:</strong> בטרם העלאת הקובץ הבית-ספרי, יש למחוק את עמודת שמות התלמידים ואת עמודת שמות המורים, לשמירה מירבית על פרטיות הלומדים והמורים.
+      </div>
+      <label class="upload-label" for="schoolFileInput">📂 בחירת קבצים בית-ספריים</label>
+      <input type="file" id="schoolFileInput" multiple accept=".xls,.xlsx" style="display:none;" onchange="handleSchoolFile(this)">
+      <div id="schoolFileName" class="file-list"></div>
+    </div>
+  </div>
+  <div class="welcome-actions">
+    <button class="btn-process" id="processBtn" onclick="processFiles()" disabled>ניתוח נתונים ←</button>
+    <button class="btn-demo" onclick="loadDemoMode()">טעינת נתוני דוגמה</button>
+  </div>
+  <div id="processStatus"></div>
+</div>
+
+<!-- ════════ MAIN APP ════════ -->
+<div id="mainApp" style="display:none;">
+
+<div class="app-header">
+  <div>
+    <div class="header-title">"עוגן-פלוס" למנהל/ת — תוכנית התערבות בית-ספרית</div>
+    <div class="header-sub">מבוסס על נתוני כלי העוגן ודשבורד העוגן — ניתוח נתונים ותכנון התערבות</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span id="demoBadge" class="demo-badge" style="display:none;">נתוני דוגמה</span>
+    <div class="header-badge" id="schoolYearBadge">בית ספר · שנה"ל תשפ"ה</div>
+    <button onclick="backToUpload()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;padding:4px 12px;border-radius:8px;font-family:'Heebo',sans-serif;font-size:11px;cursor:pointer;">← טעינת קבצים חדשים</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('tab1')">📊 תמונת מצב בית-ספרית</button>
+  <button class="tab-btn" onclick="showTab('tab2')">🗺️ תמונת מצב ותוכנית התערבות שכבתית</button>
+  <button class="tab-btn" onclick="showTab('tab3')">🔍 מבט על כיתה</button>
+  <button class="tab-btn" onclick="showTab('tab4')">📋 תוכנית עבודה וניצול משאבים</button>
+  <button onclick="printCurrentTab()" style="margin-right:auto;margin-left:12px;padding:8px 16px;border-radius:8px;border:1px solid var(--gray-200);background:var(--gray-50);font-family:'Heebo',sans-serif;font-size:12px;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:5px;" title="הדפסת הלשונית הנוכחית">🖨️ הדפס לשונית זו</button>
+</div>
+
+<!-- ════════════════════════════════════════════
+     TAB 1 — תמונת מצב בית-ספרית
+════════════════════════════════════════════ -->
+<div id="tab1" class="tab-pane active">
+
+  <div class="metrics-row">
+    <div class="metric-card">
+      <div class="m-label">תלמידים שמופו</div>
+      <div class="m-value m-teal">405</div>
+      <div class="m-sub">15 כיתות, שכבות א–ו</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">כיתות שמופו</div>
+      <div class="m-value m-blue">15</div>
+      <div class="m-sub">שכבות א'–ו' (ג', ד', ה' — 3 כיתות כ"א)</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">קושי בולט בית-ספרי</div>
+      <div class="m-value m-amber">35%</div>
+      <div class="m-sub">מתקשים בשפה — הגבוה ביותר</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">מענים רגשיים מתועדים</div>
+      <div class="m-value m-red">0%</div>
+      <div class="m-sub">פער מערכתי — 15/15 כיתות</div>
+    </div>
+  </div>
+
+  <!-- Classes table -->
+  <div class="section-title">כיתות שמופו ומספר תלמידים</div>
+  <div class="card" style="margin-bottom:24px;">
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;text-align:center;">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--teal);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--teal-light);">שכבה א'</div>
+        <div style="font-size:12px;margin-bottom:4px;">א'1 — <strong>34</strong></div>
+        <div style="font-size:12px;">א'2 — <strong>34</strong></div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:6px;">סה"כ: 68</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--teal);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--teal-light);">שכבה ב'</div>
+        <div style="font-size:12px;margin-bottom:4px;">ב'1 — <strong>36</strong></div>
+        <div style="font-size:12px;">ב'2 — <strong>36</strong></div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:6px;">סה"כ: 72</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--teal);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--teal-light);">שכבה ג'</div>
+        <div style="font-size:12px;margin-bottom:4px;">ג'1 — <strong>20</strong></div>
+        <div style="font-size:12px;margin-bottom:4px;">ג'2 — <strong>23</strong></div>
+        <div style="font-size:12px;">ג'3 — <strong>27</strong></div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:6px;">סה"כ: 70</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--teal);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--teal-light);">שכבה ד'</div>
+        <div style="font-size:12px;margin-bottom:4px;">ד'1 — <strong>27</strong></div>
+        <div style="font-size:12px;margin-bottom:4px;">ד'2 — <strong>22</strong></div>
+        <div style="font-size:12px;">ד'3 — <strong>21</strong></div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:6px;">סה"כ: 70</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--teal);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--teal-light);">שכבה ה'</div>
+        <div style="font-size:12px;margin-bottom:4px;">ה'1 — <strong>22</strong></div>
+        <div style="font-size:12px;margin-bottom:4px;">ה'2 — <strong>25</strong></div>
+        <div style="font-size:12px;">ה'3 — <strong>23</strong></div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:6px;">סה"כ: 70</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--teal);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--teal-light);">שכבה ו'</div>
+        <div style="font-size:12px;margin-bottom:4px;">ו'1 — <strong>30</strong></div>
+        <div style="font-size:12px;">ו'2 — <strong>25</strong></div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:6px;">סה"כ: 55</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Groups chart -->
+  <div class="section-title">חלוקת התלמידים לפי קבוצות מאפיינים דומים</div>
+  <div class="grid-2" style="margin-bottom:24px;align-items:start;">
+    <div class="card">
+      <div class="card-title">פיזור קבוצות — כלל בית הספר
+        <span style="font-size:11px;font-weight:400;color:var(--gray-400);margin-right:6px;">396 תלמידים מסווגים מתוך 405 ממופים</span>
+        <span class="data-warn" style="font-size:10px;">9 תלמידים מד' ללא סיווג קבוצתי בקובץ הבית-ספרי</span>
+      </div>
+      <div style="position:relative;height:260px;">
+        <canvas id="groupsChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">פיזור קבוצות לפי שכבה</div>
+      <div style="position:relative;height:260px;">
+        <canvas id="gradeGroupsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key difficulties -->
+  <div class="section-title">קשיים בולטים</div>
+  <div class="two-col-insights">
+    <div>
+      <div class="insight-box critical">
+        <div class="insight-icon">🚨</div>
+        <div>
+          <div class="insight-title">שפת אם — הקושי הלימודי הבולט ביותר: 35% מתקשים</div>
+          <div class="insight-desc">בשכבה ב' כבר 44% מתקשים, ושיעור זה נותר גבוה לאורך כל שנות הלימוד. כיתה ב'2 בלבד: 58%. 7.9% מהתלמידים ברמת "מתקשה מאוד".</div>
+        </div>
+      </div>
+      <div class="insight-box critical">
+        <div class="insight-icon">📉</div>
+        <div>
+          <div class="insight-title">מוטיבציה והרגלי למידה — ירידה מצטברת ומשמעותית החל משכבה ד'</div>
+          <div class="insight-desc">שיעור המתקשים עולה מ-13% בשכבה א' ל-54% בשכבה ה'. כיתה ה'2 בלבד: 68%. זהו הנתון הגבוה ביותר שנמדד בכלי העוגן בבית הספר.</div>
+        </div>
+      </div>
+      <div class="insight-box warning">
+        <div class="insight-icon">📖</div>
+        <div>
+          <div class="insight-title">עברית כשפה שנייה — עלייה עקבית בקושי משכבה ג' עד ה'</div>
+          <div class="insight-desc">שיעורי הקושי: ג' 23% ← ד' 34% ← ה' 54% ← ו' 38%. מגמה זו מחייבת תכנית התערבות מובנית ורציפה החל משכבה ג'.</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="insight-box warning">
+        <div class="insight-icon">⚠️</div>
+        <div>
+          <div class="insight-title">מתמטיקה — עלייה חדה בשיעורי הקושי בשכבות ד'–ה'</div>
+          <div class="insight-desc">עד שכבה ג': כ-21% מתקשים. בשכבות ד'–ה': 33–37%. הקושי קשור גם לירידת המוטיבציה ולפערי שפה בפתרון שאלות מילוליות.</div>
+        </div>
+      </div>
+      <div class="insight-box info">
+        <div class="insight-icon">🧠</div>
+        <div>
+          <div class="insight-title">קושי כפול: שפה ומוטיבציה — בשכבות ד'–ו'</div>
+          <div class="insight-desc">34% מהתלמידים בשכבות ד'–ו' מתקשים הן בשפת האם והן במוטיבציה. קושי בשפה מוביל לחוויות כישלון חוזרות המשפיעות על המוטיבציה, ולהיפך. התערבות ממוקדת בתחום אחד בלבד אינה מספקת.</div>
+        </div>
+      </div>
+      <div class="insight-box critical">
+        <div class="insight-icon">🔕</div>
+        <div>
+          <div class="insight-title">היעדר מענים רגשיים-חברתיים מתועדים — בכל 15 הכיתות</div>
+          <div class="insight-desc">40 תלמידים מוגדרים "מתקשים חברתית-רגשית" ו-32 "מתקשים בכל" — ללא מענה מתועד אחד בכלי העוגן. מדובר בפער מערכתי הדורש טיפול מיידי.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Strengths & interests -->
+  <div class="section-title">תחומי עניין וחוזקות בולטות</div>
+  <div class="grid-2" style="margin-bottom:24px;align-items:start;">
+    <div class="card">
+      <div class="card-title">🎨 חוזקות מזוהות — כלל בית הספר</div>
+      <div class="strength-list">
+        <div class="strength-pill">ציור <span class="s-count">158</span></div>
+        <div class="strength-pill">ספורט <span class="s-count">121</span></div>
+        <div class="strength-pill">מוזיקה <span class="s-count">59</span></div>
+        <div class="strength-pill">יכולת הבעה <span class="s-count">42</span></div>
+        <div class="strength-pill">מנהיגות וחברה <span class="s-count">36</span></div>
+        <div class="strength-pill">תחום דעת בולט <span class="s-count">20</span></div>
+        <div class="strength-pill">טכנולוגיה <span class="s-count">19</span></div>
+        <div class="strength-pill">מחול <span class="s-count">16</span></div>
+      </div>
+      <div style="margin-top:14px;padding:10px;background:var(--teal-light);border-radius:8px;font-size:12px;color:var(--teal);">
+        <strong>297 מ-405 תלמידים</strong> (73%) עם חוזקה מזוהה. בשכבה ה רק 39% — ירידה מדאיגה.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 שיעור זיהוי חוזקות לפי שכבה</div>
+      <div style="position:relative;height:200px;">
+        <canvas id="strengthsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Special populations -->
+  <div class="section-title">אוכלוסיות ייחודיות</div>
+  <div class="card" style="margin-bottom:24px;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:8px;">מחוננים ומצטיינים</div>
+        <div style="font-size:12px;color:var(--gray-600);line-height:1.7;">
+          • <strong>18 מחוננים</strong> מאותרים ע"י אגף המחוננים<br>
+          • <strong>15 מצטיינים</strong> מאותרים ע"י האגף<br>
+          • <strong>11 מצטיינים</strong> בית-ספריים<br>
+          • ריכוז גבוה בשכבה ד' (37% בד'1 בלבד)<br>
+          <span class="alert-chip" style="margin-top:4px;display:inline-block;">ללא מענה מתועד להעשרה</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:8px;">ייחוד ותמיכה</div>
+        <div style="font-size:12px;color:var(--gray-600);line-height:1.7;">
+          • <strong>31 זכאים לחינוך מיוחד</strong><br>
+          • <strong>8 לקות למידה</strong> (חשד או מאובחן)<br>
+          • <strong>8 הפרעת קשב</strong> (חשד או מאובחן)<br>
+          • <strong>1 מאפייני סיכון</strong> (ו'2)<br>
+          • ריכוז חינוך מיוחד גבוה: ב'1 (7 תלמידים)
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">תמונת שלמות נתונים</div>
+        <div style="font-size:12px;color:var(--gray-600);line-height:1.7;">
+          • <strong>102 תלמידים</strong> מזוהים כאוכ' ייחודית<br>
+          • <strong>301</strong> סומנו "לא ידוע" — <strong>74%!</strong><br>
+          <span class="data-warn" style="margin-top:4px;display:inline-block;">בעיה: רוב השאלות לא נענו</span>
+          <br><span style="margin-top:4px;display:block;">ייתכן שמספר האוכ' הייחודיות גדול בהרבה מהמדווח.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blind spots -->
+  <div class="section-title">נקודות עיוורון קריטיות</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:24px;">
+    <div class="insight-box critical" style="margin-bottom:0;flex-direction:column;gap:6px;">
+      <div class="insight-title">🔴 היעדר מענים רגשיים-חברתיים — פער מערכתי</div>
+      <div class="insight-desc">בכל 15 הכיתות לא תועד אף מענה רגשי-חברתי בכלי העוגן. 72 תלמידים בקבוצות "מתקשים חברתית-רגשית" ו"מתקשים בכל" ממתינים לתוכנית מענה.</div>
+    </div>
+    <div class="insight-box warning" style="margin-bottom:0;flex-direction:column;gap:6px;">
+      <div class="insight-title">🟡 כיתה ד'2 — איכות מילוי הכלי מוטלת בספק</div>
+      <div class="insight-desc">תלמיד אחד בלבד (מתוך 22) עם חוזקה מזוהה; ארבעה תחומים מדווחים 0%. פער זה ביחס לכיתות ד' האחרות (89–100% זיהוי חוזקות) מרמז על מילוי חלקי של הכלי ולא על מציאות שונה.</div>
+    </div>
+    <div class="insight-box info" style="margin-bottom:0;flex-direction:column;gap:6px;">
+      <div class="insight-title">🔵 שכבות א'–ב' — שדות המענה לא מולאו</div>
+      <div class="insight-desc">140 תלמידים בשכבות הנמוכות ללא תיעוד מענים כלל — לא לימודיים ולא רגשיים. לא ניתן להעריך מי מקבל תמיכה ומי אינו.</div>
+    </div>
+    <div class="insight-box critical" style="margin-bottom:0;flex-direction:column;gap:6px;">
+      <div class="insight-title">🔴 כיתה ד'1 — הטרוגניות קיצונית ועומס על המחנך</div>
+      <div class="insight-desc">10 מחוננים ומצטיינים מאותרים (37% מהכיתה) לצד 41% קשיי קשב ו-41% קשיי התנהגות. כיתה זו מחייבת סיוע מקצועי ייעודי — מחנכת שותפת או שעות תגבור — על מנת לאפשר הוראה מותאמת לשני הקצוות.</div>
+    </div>
+    <div class="insight-box warning" style="margin-bottom:0;flex-direction:column;gap:6px;">
+      <div class="insight-title">🟡 ירידה משמעותית בזיהוי חוזקות בשכבה ה'</div>
+      <div class="insight-desc">93% מתלמידי שכבה ג' זוהו עם תחום חוזק, לעומת 39% בלבד בשכבה ה'. ירידה זו מלווה בנפילת המוטיבציה ומעידה על כך שהמיקוד הפדגוגי בשכבות הגבוהות הוא בעיקר בקשיים, ופחות בחיזוק יכולות.</div>
+    </div>
+    <div class="insight-box info" style="margin-bottom:0;flex-direction:column;gap:6px;">
+      <div class="insight-title">🔵 פער בלתי מוסבר בין ב'2 לעומת ב'1 בשפת אם</div>
+      <div class="insight-desc">שתי כיתות ב' בנות 36 תלמידים כל אחת, אותה שנת לימוד ואותה תכנית לימודים. בכיתה ב'2: 58% מהתלמידים מתקשים בשפת האם (קריאה, כתיבה, הבעה). בכיתה ב'1: 31% בלבד. פער של 27 נקודות אחוז בין שתי כיתות מקבילות מחייב בחינה — הרכב הכיתה, גישה פדגוגית, או גורם אחר.</div>
+    </div>
+  </div>
+
+  <!-- Goals -->
+  <div class="section-title">3 יעדים מומלצים לשנה"ל</div>
+  <div class="grid-3">
+    <div class="goal-card">
+      <div class="goal-num">יעד 1</div>
+      <div class="goal-text">תכנית עברית כשפה שנייה מובנית לשכבות ג'–ו'</div>
+      <div class="goal-sub">הקצאת שעות ייעודיות, חיבור לשפת האם ולתוכן הלימודי. מדד: הפחתת שיעור המתקשים ב-10 נקודות אחוז עד סוף השנה בשכבות ג'–ד'.</div>
+    </div>
+    <div class="goal-card">
+      <div class="goal-num">יעד 2</div>
+      <div class="goal-text">תיעוד ומימוש מענים רגשיים-חברתיים בכלל הכיתות</div>
+      <div class="goal-sub">הכנסת תוכנית אוניברסלית בכל כיתה ותוכנית ממוקדת לקבוצת "מתקשים חברתית-רגשית" (40 תלמידים). תיעוד מלא בכלי העוגן.</div>
+    </div>
+    <div class="goal-card">
+      <div class="goal-num">יעד 3</div>
+      <div class="goal-text">חיזוק המעורבות והמוטיבציה בשכבות ד'–ה' דרך תחומי חוזק</div>
+      <div class="goal-sub">שילוב אמנות, ספורט ומוזיקה כנקודות כניסה לתוכן לימודי. פרויקטים מבוססי עניין אישי בשכבה ה'. מדד: עלייה בשיעור זיהוי חוזקות מ-39% ל-60% לפחות.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════
+     TAB 2 — תוכנית התערבות שכבתית
+════════════════════════════════════════════ -->
+<div id="tab2" class="tab-pane">
+
+  <div class="section-title" style="margin-top:0;">אחוז מתקשים לפי שכבה ותחום/היבט</div>
+  <div class="card" style="margin-bottom:24px;">
+    <div class="heatmap-wrap">
+    <table class="heatmap" id="heatmapTable">
+      <thead>
+        <tr>
+          <th class="grade-col">שכבה</th>
+          <th>שפת אם</th>
+          <th>מתמטיקה</th>
+          <th>עב׳ לד"ע</th>
+          <th>אנגלית</th>
+          <th>מוטיבציה</th>
+          <th>קשב</th>
+          <th>התנהגות</th>
+          <th>רגשי</th>
+          <th>חברתי</th>
+          <th>חושי-תנועתי</th>
+        </tr>
+      </thead>
+      <tbody id="heatmapBody"></tbody>
+    </table>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-box" style="background:#F0FDF4;border:1px solid #86EFAC;"></div>עד 15%</div>
+      <div class="legend-item"><div class="legend-box" style="background:#FEF9C3;border:1px solid #FDE047;"></div>16%–25%</div>
+      <div class="legend-item"><div class="legend-box" style="background:#FEF3C7;border:1px solid #FCD34D;"></div>26%–35%</div>
+      <div class="legend-item"><div class="legend-box" style="background:#FECACA;border:1px solid #F87171;"></div>36%–49%</div>
+      <div class="legend-item"><div class="legend-box" style="background:#FCA5A5;border:1px solid #EF4444;"></div>50%+</div>
+      <div class="legend-item"><div class="legend-box" style="background:var(--gray-100);border:1px solid var(--gray-200);"></div>לא רלוונטי לשכבה</div>
+    </div>
+  </div>
+
+  <div class="section-title">המלצות התערבות לפי שכבה ותחום</div>
+  <div style="margin-bottom:20px;">
+    <div class="grade-filter" id="gradeFilter">
+      <button class="grade-btn active" onclick="filterGrade('all',this)">כל השכבות</button>
+      <button class="grade-btn" onclick="filterGrade('א',this)">שכבה א'</button>
+      <button class="grade-btn" onclick="filterGrade('ב',this)">שכבה ב'</button>
+      <button class="grade-btn" onclick="filterGrade('ג',this)">שכבה ג'</button>
+      <button class="grade-btn" onclick="filterGrade('ד',this)">שכבה ד'</button>
+      <button class="grade-btn" onclick="filterGrade('ה',this)">שכבה ה'</button>
+      <button class="grade-btn" onclick="filterGrade('ו',this)">שכבה ו'</button>
+    </div>
+  </div>
+  <div id="interventionCards"></div>
+
+</div>
+
+<!-- ════════════════════════════════════════════
+     TAB 3 — מבט על כיתה
+════════════════════════════════════════════ -->
+<div id="tab3" class="tab-pane">
+
+  <div class="section-title" style="margin-top:0;">בחר/י כיתה לצפייה מפורטת</div>
+  <div class="grade-filter" id="classFilter">
+    <button class="grade-btn active" onclick="filterClass('all',this)">כל הכיתות</button>
+    <button class="grade-btn" onclick="filterClass('א1',this)">א'1</button>
+    <button class="grade-btn" onclick="filterClass('א2',this)">א'2</button>
+    <button class="grade-btn" onclick="filterClass('ב1',this)">ב'1</button>
+    <button class="grade-btn" onclick="filterClass('ב2',this)">ב'2</button>
+    <button class="grade-btn" onclick="filterClass('ג1',this)">ג'1</button>
+    <button class="grade-btn" onclick="filterClass('ג2',this)">ג'2</button>
+    <button class="grade-btn" onclick="filterClass('ג3',this)">ג'3</button>
+    <button class="grade-btn" onclick="filterClass('ד1',this)">ד'1</button>
+    <button class="grade-btn" onclick="filterClass('ד2',this)">ד'2</button>
+    <button class="grade-btn" onclick="filterClass('ד3',this)">ד'3</button>
+    <button class="grade-btn" onclick="filterClass('ה1',this)">ה'1</button>
+    <button class="grade-btn" onclick="filterClass('ה2',this)">ה'2</button>
+    <button class="grade-btn" onclick="filterClass('ה3',this)">ה'3</button>
+    <button class="grade-btn" onclick="filterClass('ו1',this)">ו'1</button>
+    <button class="grade-btn" onclick="filterClass('ו2',this)">ו'2</button>
+  </div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:11px;color:var(--gray-600);align-items:center;">
+    <span style="font-weight:500;">צביעת כותרת הכיתה:</span>
+    <span style="display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#F0FDFA;border:1px solid #86EFAC;display:inline-block;"></span>הטרוגניות רגילה — אין תחום מעל 35%</span>
+    <span style="display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#FFFBEB;border:1px solid #FCD34D;display:inline-block;"></span>לתשומת לב — תחום אחד 35%–49% או 3+ תחומים מעל 30%</span>
+    <span style="display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#FFF1F2;border:1px solid #FCA5A5;display:inline-block;"></span>חריג — תחום מעל 50%, 4+ תחומים מעל 35%, או 2+ תחומים מעל 45%</span>
+  </div>
+  <div id="classCards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px;"></div>
+
+</div>
+
+<!-- ════════════════════════════════════════════
+     TAB 4 — תוכנית עבודה
+════════════════════════════════════════════ -->
+<div id="tab4" class="tab-pane">
+
+  <div class="section-title" style="margin-top:0;">תוכנית עבודה לניצול משאבים — בית הספר, שכבה, כיתה</div>
+
+  <!-- Priority legend -->
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;align-items:center;">
+    <span style="font-size:12px;font-weight:600;color:var(--gray-600);">סדר עדיפויות:</span>
+    <span style="font-size:12px;color:var(--red);">● גבוהה</span><span style="font-size:11px;color:var(--gray-600);">— פגיעה מערכתית רחבה או אוכלוסייה בסיכון ללא מענה</span>
+    <span style="font-size:12px;color:var(--amber);">● בינונית</span><span style="font-size:11px;color:var(--gray-600);">— קושי ממוקד בשכבה/כיתה עם השפעה ניכרת</span>
+    <span style="font-size:12px;color:var(--green);">● נמוכה</span><span style="font-size:11px;color:var(--gray-600);">— בדיקה או פעולה שניתן לדחות לשלב שני</span>
+  </div>
+
+  <!-- Toolbar -->
+  <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+    <button onclick="exportPlanData()" style="padding:7px 16px;border-radius:8px;border:1.5px solid var(--teal);background:var(--teal);color:white;font-family:'Heebo',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">💾 ייצוא לקובץ</button>
+    <button onclick="document.getElementById('importFile').click()" style="padding:7px 16px;border-radius:8px;border:1.5px solid var(--teal);background:white;color:var(--teal);font-family:'Heebo',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">📂 ייבוא מקובץ</button>
+    <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importPlanData(event)">
+    <span id="saveStatus" style="font-size:11px;color:var(--teal);align-self:center;"></span>
+  </div>
+  <div style="font-size:11px;color:var(--gray-600);margin-bottom:14px;padding:8px 12px;background:var(--gray-50);border-radius:8px;border:1px solid var(--gray-200);">
+    ✏️ עמודות עם סמל ✏️ ניתנות לעריכה ישירה — לחץ/י על תא כדי לערוך: הקלדה, מחיקה, הוספת טקסט.
+    "ייצוא לקובץ" שומר את הנתונים כקובץ JSON בתיקיית ההורדות — ניתן לשמור ולהעביר לכל מחשב.
+    "ייבוא מקובץ" טוען חזרה קובץ JSON שנשמר קודם.
+  </div>
+
+  <div class="card" style="margin-bottom:20px;overflow-x:auto;">
+  <table class="plan-table" id="planTable">
+    <thead>
+      <tr>
+        <th style="width:55px;">עדיפות</th>
+        <th style="width:140px;">יעד / התערבות</th>
+        <th style="width:100px;">רובד MTSS</th>
+        <th style="width:110px;">קהל יעד</th>
+        <th style="width:140px;" class="editable-col">תוכנית / מקור (גפן) ✏️</th>
+        <th style="width:120px;" class="editable-col">כוח אדם אחראי ✏️</th>
+        <th style="width:80px;" class="editable-col">תדירות ✏️</th>
+        <th style="width:110px;" class="editable-col">מדד הצלחה ✏️</th>
+        <th style="width:75px;" class="editable-col">מועד בדיקה ✏️</th>
+        <th style="width:140px;" class="editable-col">הערות ✏️</th>
+      </tr>
+    </thead>
+    <tbody id="planBody"></tbody>
+  </table>
+  </div>
+  <div style="background:var(--blue-light);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--blue);">
+    <strong>הערה:</strong> התכנית מסתמכת על נתוני כלי העוגן. לפני יישום, מומלץ לאמת שלוש נקודות: (1) מילוי חסר בד'2 וג'3, (2) אוכלוסיות ייחודיות שסומנו "לא ידוע" (74% מהתלמידים), (3) מענים רגשיים קיימים שאינם מתועדים בכלי. עמודות עם ✏️ ניתנות לעריכה ישירה בטבלה.
+  </div>
+
+</div>
+</div><!-- end mainApp -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+const classData = {
+  "א1": { n:34, grade:"א", domains:{ 'שפה':{adv:15,ok:59,str:21,sev:6}, 'חברתי':{adv:0,ok:82,str:18,sev:0}, 'מתמטיקה':{adv:15,ok:65,str:18,sev:3}, 'מוטיבציה':{adv:6,ok:74,str:18,sev:3}, 'רגשי':{adv:0,ok:79,str:21,sev:0}, 'התנהגות':{adv:0,ok:79,str:21,sev:0}, 'קשב':{adv:0,ok:76,str:21,sev:3}, 'חושי':{adv:0,ok:88,str:9,sev:3} }, strengths:{"ציור":23,"מוזיקה":14,"ספורט":14,"טכנולוגיה":9}, pops:{"זכאי לחינוך מיוחד":4,"חשד קשב":1} },
+  "א2": { n:34, grade:"א", domains:{ 'שפה':{adv:9,ok:74,str:18,sev:0}, 'חברתי':{adv:3,ok:97,str:0,sev:0}, 'מתמטיקה':{adv:9,ok:74,str:18,sev:0}, 'מוטיבציה':{adv:9,ok:85,str:6,sev:0}, 'רגשי':{adv:3,ok:91,str:6,sev:0}, 'התנהגות':{adv:3,ok:79,str:18,sev:0}, 'קשב':{adv:0,ok:79,str:21,sev:0}, 'חושי':{adv:0,ok:91,str:9,sev:0} }, strengths:{"ציור":11,"ספורט":10,"מוזיקה":3,"מנהיגות":2}, pops:{"זכאי לחינוך מיוחד":3} },
+  "ב1": { n:36, grade:"ב", domains:{ 'שפה':{adv:11,ok:58,str:22,sev:8}, 'חברתי':{adv:11,ok:72,str:14,sev:3}, 'מתמטיקה':{adv:14,ok:64,str:17,sev:6}, 'מוטיבציה':{adv:11,ok:69,str:17,sev:3}, 'רגשי':{adv:11,ok:72,str:14,sev:3}, 'התנהגות':{adv:11,ok:72,str:14,sev:3}, 'קשב':{adv:11,ok:69,str:17,sev:3}, 'חושי':{adv:11,ok:69,str:17,sev:3} }, strengths:{"ציור":23,"ספורט":8,"יכולת הבעה":5,"מוזיקה":4}, pops:{"זכאי לחינוך מיוחד":7} },
+  "ב2": { n:36, grade:"ב", domains:{ 'שפה':{adv:0,ok:42,str:47,sev:11}, 'חברתי':{adv:0,ok:81,str:19,sev:0}, 'מתמטיקה':{adv:6,ok:69,str:22,sev:3}, 'מוטיבציה':{adv:0,ok:78,str:19,sev:3}, 'רגשי':{adv:0,ok:86,str:14,sev:0}, 'התנהגות':{adv:0,ok:94,str:6,sev:0}, 'קשב':{adv:0,ok:83,str:17,sev:0}, 'חושי':{adv:0,ok:81,str:19,sev:0} }, strengths:{"ציור":24,"ספורט":13,"מוזיקה":7}, pops:{"זכאי לחינוך מיוחד":1}, alert:"שפה 58% — חריג ביחס לב'1" },
+  "ג1": { n:20, grade:"ג", domains:{ 'שפה':{adv:0,ok:70,str:25,sev:5}, 'חברתי':{adv:0,ok:75,str:25,sev:0}, 'מתמטיקה':{adv:0,ok:75,str:25,sev:0}, 'מוטיבציה':{adv:5,ok:65,str:25,sev:5}, 'רגשי':{adv:0,ok:80,str:20,sev:0}, 'התנהגות':{adv:0,ok:80,str:20,sev:0}, 'קשב':{adv:0,ok:65,str:35,sev:0}, 'חושי':{adv:0,ok:85,str:15,sev:0} }, strengths:{"תחום דעת":11,"יכולת הבעה":6,"מוזיקה":5,"ציור":5}, pops:{"חשד קשב":1} },
+  "ג2": { n:23, grade:"ג", domains:{ 'שפה':{adv:9,ok:61,str:22,sev:9}, 'חברתי':{adv:9,ok:65,str:22,sev:4}, 'מתמטיקה':{adv:26,ok:57,str:9,sev:9}, 'מוטיבציה':{adv:17,ok:61,str:9,sev:13}, 'רגשי':{adv:4,ok:78,str:9,sev:9}, 'התנהגות':{adv:13,ok:52,str:26,sev:9}, 'קשב':{adv:13,ok:61,str:22,sev:4}, 'חושי':{adv:4,ok:83,str:9,sev:4} }, strengths:{"יכולת הבעה":11,"ציור":7,"מנהיגות":4,"ספורט":4}, pops:{"זכאי לחינוך מיוחד":5,"חשד קשב":1} },
+  "ג3": { n:27, grade:"ג", domains:{ 'שפה':{adv:30,ok:22,str:19,sev:30}, 'חברתי':{adv:11,ok:89,str:0,sev:0}, 'מתמטיקה':{adv:7,ok:70,str:15,sev:7}, 'מוטיבציה':{adv:4,ok:78,str:7,sev:11}, 'רגשי':{adv:15,ok:63,str:15,sev:7}, 'התנהגות':{adv:7,ok:74,str:19,sev:0}, 'קשב':{adv:7,ok:93,str:0,sev:0}, 'חושי':{adv:7,ok:74,str:19,sev:0} }, strengths:{"ציור":18,"ספורט":10,"מוזיקה":6,"מנהיגות":4}, pops:{"זכאי לחינוך מיוחד":3,"חשד קשב":2,"חשד לקות":1}, alert:"0% קשב ו-0% חברתי — בדוק מילוי" },
+  "ד1": { n:27, grade:"ד", domains:{ 'שפה':{adv:30,ok:26,str:37,sev:7}, 'חברתי':{adv:44,ok:26,str:26,sev:4}, 'מתמטיקה':{adv:41,ok:22,str:26,sev:11}, 'מוטיבציה':{adv:44,ok:19,str:15,sev:22}, 'רגשי':{adv:44,ok:19,str:33,sev:4}, 'התנהגות':{adv:48,ok:11,str:30,sev:11}, 'קשב':{adv:44,ok:15,str:30,sev:11}, 'חושי':{adv:44,ok:30,str:19,sev:7} }, strengths:{"ספורט":21,"ציור":9,"יכולת הבעה":7,"מוזיקה":7}, pops:{"מצטיין בית-ספרי":5,"מחונן (אגף)":5,"מצטיין (אגף)":1,"חשד קשב":1,"זכאי חינוך מיוחד":1}, alert:"37% מחוננים/מצטיינים + 41% קשב — טווח קיצוני" },
+  "ד2": { n:22, grade:"ד", domains:{ 'שפה':{adv:23,ok:41,str:32,sev:0}, 'חברתי':{adv:5,ok:91,str:0,sev:0}, 'מתמטיקה':{adv:23,ok:41,str:32,sev:0}, 'מוטיבציה':{adv:14,ok:45,str:36,sev:0}, 'רגשי':{adv:14,ok:82,str:0,sev:0}, 'התנהגות':{adv:5,ok:91,str:0,sev:0}, 'קשב':{adv:5,ok:91,str:0,sev:0}, 'חושי':{adv:5,ok:91,str:0,sev:0} }, strengths:{}, pops:{"מצטיין (אגף)":5,"מחונן (אגף)":2}, alert:"1/22 חוזקות — מילוי חשוד; 0% ב-4 תחומים" },
+  "ד3": { n:21, grade:"ד", domains:{ 'שפה':{adv:33,ok:33,str:29,sev:5}, 'חברתי':{adv:10,ok:52,str:29,sev:10}, 'מתמטיקה':{adv:24,ok:33,str:33,sev:10}, 'מוטיבציה':{adv:19,ok:29,str:43,sev:5}, 'רגשי':{adv:24,ok:57,str:10,sev:10}, 'התנהגות':{adv:10,ok:48,str:29,sev:14}, 'קשב':{adv:10,ok:57,str:19,sev:14}, 'חושי':{adv:5,ok:67,str:24,sev:5} }, strengths:{"ציור":20,"ספורט":17,"מוזיקה":5}, pops:{"מצטיין (אגף)":3,"מצטיין בית-ספרי":2,"מחונן (אגף)":2,"זכאי חינוך מיוחד":1} },
+  "ה1": { n:22, grade:"ה", domains:{ 'שפה':{adv:23,ok:55,str:14,sev:5}, 'חברתי':{adv:14,ok:68,str:14,sev:0}, 'מתמטיקה':{adv:36,ok:36,str:18,sev:5}, 'מוטיבציה':{adv:18,ok:23,str:41,sev:14}, 'רגשי':{adv:14,ok:64,str:18,sev:0}, 'התנהגות':{adv:14,ok:68,str:14,sev:0}, 'קשב':{adv:14,ok:73,str:9,sev:0}, 'חושי':{adv:14,ok:68,str:14,sev:0} }, strengths:{"מנהיגות":3,"ספורט":2,"מחול":1}, pops:{"זכאי חינוך מיוחד":2,"מחונן (אגף)":2,"מצטיין (אגף)":1} },
+  "ה2": { n:25, grade:"ה", domains:{ 'שפה':{adv:16,ok:36,str:24,sev:20}, 'חברתי':{adv:0,ok:92,str:4,sev:0}, 'מתמטיקה':{adv:32,ok:28,str:8,sev:28}, 'מוטיבציה':{adv:8,ok:24,str:32,sev:36}, 'רגשי':{adv:4,ok:92,str:0,sev:4}, 'התנהגות':{adv:0,ok:96,str:4,sev:0}, 'קשב':{adv:0,ok:96,str:4,sev:0}, 'חושי':{adv:0,ok:96,str:4,sev:0} }, strengths:{"ספורט":4,"ציור":2,"מנהיגות":2}, pops:{"חשד לקות":5,"מחונן (אגף)":3}, alert:"68% מוטיבציה — גבוה ביותר; 5 לקות למידה ללא מענה" },
+  "ה3": { n:23, grade:"ה", domains:{ 'שפה':{adv:35,ok:30,str:30,sev:4}, 'חברתי':{adv:30,ok:35,str:35,sev:0}, 'מתמטיקה':{adv:35,ok:26,str:26,sev:13}, 'מוטיבציה':{adv:35,ok:26,str:30,sev:9}, 'רגשי':{adv:35,ok:35,str:30,sev:0}, 'התנהגות':{adv:30,ok:39,str:26,sev:4}, 'קשב':{adv:35,ok:35,str:30,sev:0}, 'חושי':{adv:30,ok:30,str:39,sev:0} }, strengths:{"מוזיקה":3,"ספורט":2,"ציור":2}, pops:{"מצטיין בית-ספרי":4,"מחונן (אגף)":3,"מצטיין (אגף)":3} },
+  "ו1": { n:30, grade:"ו", domains:{ 'שפה':{adv:33,ok:37,str:30,sev:0}, 'חברתי':{adv:0,ok:80,str:20,sev:0}, 'מתמטיקה':{adv:33,ok:30,str:27,sev:10}, 'מוטיבציה':{adv:23,ok:43,str:13,sev:20}, 'רגשי':{adv:3,ok:83,str:13,sev:0}, 'התנהגות':{adv:0,ok:83,str:17,sev:0}, 'קשב':{adv:0,ok:83,str:17,sev:0}, 'חושי':{adv:3,ok:80,str:17,sev:0} }, strengths:{"ספורט":3,"מנהיגות":3}, pops:{"מצטיין (אגף)":3,"מחונן (אגף)":2} },
+  "ו2": { n:25, grade:"ו", domains:{ 'שפה':{adv:12,ok:48,str:32,sev:8}, 'חברתי':{adv:16,ok:72,str:12,sev:0}, 'מתמטיקה':{adv:20,ok:56,str:20,sev:4}, 'מוטיבציה':{adv:8,ok:44,str:40,sev:8}, 'רגשי':{adv:16,ok:36,str:32,sev:16}, 'התנהגות':{adv:16,ok:56,str:20,sev:8}, 'קשב':{adv:12,ok:56,str:24,sev:8}, 'חושי':{adv:16,ok:44,str:32,sev:8} }, strengths:{"ציור":14,"ספורט":8,"יכולת הבעה":4,"טכנולוגיה":4}, pops:{"מצטיין (אגף)":2,"מחונן (אגף)":1,"חשד קשב":1,"מאפייני סיכון":1,"חשד לקות":1,"זכאי חינוך מיוחד":1}, alert:"רגשי 48% + מוטיבציה 48% — דחוף" }
+};
+
+const heatmapData = [
+  { grade:"א", n:68, 'שפה':22, 'מתמטיקה':19, 'עברית_ערבית':4,  'אנגלית':null, 'מוטיבציה':13, 'קשב':22, 'התנהגות':19, 'רגשי':13, 'חברתי':9,  'חושי':10 },
+  { grade:"ב", n:72, 'שפה':44, 'מתמטיקה':24, 'עברית_ערבית':11, 'אנגלית':null, 'מוטיבציה':21, 'קשב':18, 'התנהגות':11, 'רגשי':15, 'חברתי':18, 'חושי':19 },
+  { grade:"ג", n:70, 'שפה':37, 'מתמטיקה':21, 'עברית_ערבית':23, 'אנגלית':null, 'מוטיבציה':23, 'קשב':19, 'התנהגות':24, 'רגשי':20, 'חברתי':16, 'חושי':16 },
+  { grade:"ד", n:70, 'שפה':37, 'מתמטיקה':37, 'עברית_ערבית':34, 'אנגלית':24,  'מוטיבציה':40, 'קשב':26, 'התנהגות':29, 'רגשי':20, 'חברתי':23, 'חושי':19 },
+  { grade:"ה", n:70, 'שפה':33, 'מתמטיקה':33, 'עברית_ערבית':54, 'אנגלית':27,  'מוטיבציה':54, 'קשב':14, 'התנהגות':16, 'רגשי':17, 'חברתי':17, 'חושי':19 },
+  { grade:"ו", n:55, 'שפה':35, 'מתמטיקה':31, 'עברית_ערבית':38, 'אנגלית':29,  'מוטיבציה':40, 'קשב':24, 'התנהגות':22, 'רגשי':29, 'חברתי':16, 'חושי':27 }
+];
+
+const interventions = [
+  {
+    grades:["ב"], domain:"שפת אם", mtss:"רובד אינטנסיבי",
+    title:"שפת אם — 44% מתקשים בשכבה ב', הגבוה ביחס לשכבות הסמוכות",
+    recs:"קבוצות קריאה ממוקדות של 5–6 תלמידים. תיאום עם רכזת השפה ובחינת שימוש בתכנית 'מגדלור'. נדרשת בחינת הגורמים לפער הגדול בין ב'1 (31%) לב'2 (58%).",
+    note:"",
+    gfan:[{code:"100", name:"אשכול שפות"}]
+  },
+  {
+    grades:["ב","ג"], domain:"קשב ופעלתנות", mtss:"רובד ממוקד",
+    title:"קשב ופעלתנות — 18%–35% בשכבות ב'–ג' (שיא בג'1: 35%)",
+    recs:"בניית רוטינה כיתתית מובנית ועקבית. תיאום עם היועצת החינוכית לבחינת צורך בהפניות לאבחון.",
+    note:"תלמידים עם חשד מאובחן עשויים להזדקק לרובד אינטנסיבי — הפניה פרטנית לאבחון.",
+    gfan:[{code:"113", name:"לקויות למידה והפרעת קשב"},{code:"107", name:"למידה רגשית-חברתית, אקלים מיטבי וכישורי חיים"}]
+  },
+  {
+    grades:["ג"], domain:"עברית כשפה שנייה", mtss:"רובד אינטנסיבי",
+    title:"עברית כשפה שנייה — 23% בשכבה ג', נקודת הפתיחה לתכנית רב-שנתית",
+    recs:"שכבה ג' היא הנקודה הקריטית להנחת הבסיס. קבוצות קטנות 3 פעמים בשבוע. חיבור אקטיבי בין עברית לשפת האם ולתוכן הנלמד בכיתה.",
+    note:"",
+    gfan:[{code:"100", name:"אשכול שפות"}]
+  },
+  {
+    grades:["ד"], domain:"שפה ומתמטיקה", mtss:"רובד אינטנסיבי",
+    title:"קושי לימודי כפול בשכבה ד': 37% בשפת האם ו-37% במתמטיקה",
+    recs:"תכנית משולבת לטיפוח שפה מתמטית ואוצר מילים מקצועי. קבוצות עבודה ממוקדות.",
+    note:"תלמידים ברמת 'מתקשה מאוד' — בחינת הרחבת זכאות לשירותי תמיכה.",
+    gfan:[{code:"100", name:"אשכול שפות"},{code:"105", name:"תחומי מדע, טכנולוגיה ומתמטיקה"}]
+  },
+  {
+    grades:["ד","ה","ו"], domain:"מוטיבציה והרגלי למידה", mtss:"רובד ממוקד",
+    title:"מוטיבציה — ירידה מתמשכת: 40% בשכבה ד', 54% בשכבה ה', 40% בשכבה ו'",
+    recs:"תכנית 'שגרירי ידע': כל תלמיד מציג תחום עניין. שיחות אישיות שיטתיות של המחנך. תכנון מטלות עם אפשרות בחירה. חיבור לתחומי החוזק המזוהים (ספורט, ציור, מוזיקה).",
+    note:"כיתה ה'2 (68%) וכיתה ו'2 (48%) זקוקות בנוסף להתערבות אינטנסיבית — ראו המלצות ייעודיות לשכבות אלה.",
+    gfan:[{code:"107", name:"למידה רגשית-חברתית, אקלים מיטבי וכישורי חיים"},{code:"108", name:"מענים לטיפול וייעוץ רגשי, חברתי והתנהגותי"}]
+  },
+  {
+    grades:["ד"], domain:"ד'1 — הרכב הכיתה", mtss:"רובד אינטנסיבי",
+    title:"כיתה ד'1: מגוון צרכים קיצוני — נדרש סיוע מקצועי ייעודי",
+    recs:"הכיתה כוללת 10 מחוננים ומצטיינים מאותרים לצד 41% קשיי קשב ו-41% קשיי התנהגות. מומלץ לבחון הוספת שעות מחנכת שותפת ומסגרות נפרדות להעשרה.",
+    note:"בתכנון ארגוני לשנה הבאה: מומלץ לשקול הרכב כיתה מאוזן יותר.",
+    gfan:[{code:"403", name:"מחוננים ומצטיינים"},{code:"400", name:"הכלה והשתלבות"}]
+  },
+  {
+    grades:["ד","ה","ו"], domain:"עברית כשפה שנייה", mtss:"רובד ממוקד",
+    title:"עברית כשפה שנייה — עלייה עקבית: 34% בשכבה ד', 54% בשכבה ה', 38% בשכבה ו'",
+    recs:"הקצאת 4 שעות לימוד שבועיות לכל כיתות ד'–ו'. ליווי רכזת שפה. שילוב תוכן לימודי מקצועי בשיעורי עברית.",
+    note:"כיתה ה'2 (54%) — עדיפות ראשונה לשיבוץ. תלמידים ברמת 'מתקשה מאוד' עשויים להזדקק להתערבות אינטנסיבית.",
+    gfan:[{code:"100", name:"אשכול שפות"}]
+  },
+  {
+    grades:["ה"], domain:"ה'2 — לקויות למידה", mtss:"רובד אינטנסיבי",
+    title:"כיתה ה'2: 5 תלמידים עם חשד ללקות למידה — ללא מענה מתועד",
+    recs:"הפנייה מיידית לדיון בוועדת שילוב. תיאום עם ההורים. בטרם קבלת החלטת הוועדה: יצירת קבוצת עבודה קטנה עם מורת תמיכה. 3 מחוננים מאותרים באותה הכיתה — גם להם נדרש מענה מתועד.",
+    note:"",
+    gfan:[{code:"113", name:"לקויות למידה והפרעת קשב"},{code:"400", name:"הכלה והשתלבות"}]
+  },
+  {
+    grades:["ו"], domain:"כיתה ו'2 — היבטים רגשיים", mtss:"רובד אינטנסיבי",
+    title:"כיתה ו'2: 48% קשיים רגשיים ו-48% קשיים במוטיבציה — לקראת סיום היסודי",
+    recs:"תכנית מעבר 'גשר': הכנה מובנית לחטיבת הביניים הכוללת כישורי חיים ורגולציה עצמית. שיחות כיתתיות על נושא המעבר. ליווי יועצת חינוכית קבועה.",
+    note:"תלמיד עם מאפייני סיכון מזוהים בכיתה — בחינת הצורך בהתערבות פרטנית.",
+    gfan:[{code:"107", name:"למידה רגשית-חברתית, אקלים מיטבי וכישורי חיים"},{code:"108", name:"מענים לטיפול וייעוץ רגשי, חברתי והתנהגותי"},{code:"401", name:"ילדים ונוער בסיכון"}]
+  },
+  {
+    grades:["כלל"], domain:"מענים רגשיים-חברתיים", mtss:"רובד אוניברסלי",
+    title:"תכנית רגשית-חברתית אוניברסלית — נעדרת מכלל הכיתות",
+    recs:"הכנסת שעה כיתתית שבועית בכל כיתה לטיפוח רווחה רגשית-חברתית. הכשרת כלל המחנכים.",
+    note:"40 תלמידי קבוצת 'מתקשים חברתית-רגשית' זקוקים בנוסף לתכנית התערבות ממוקדת.",
+    gfan:[{code:"107", name:"למידה רגשית-חברתית, אקלים מיטבי וכישורי חיים"},{code:"200", name:"חינוך חברתי, קהילתי, ערכי"}]
+  },
+  {
+    grades:["כלל"], domain:"עברית כשפה שנייה", mtss:"רובד אוניברסלי",
+    title:"תכנית עברית כשפה שנייה — רצף בית-ספרי מחייב משכבה ג' עד ו'",
+    recs:"פיתוח תכנית בית-ספרית רב-שנתית. מינוי רכזת שפה ייעודית. קשר עם מפמ\"ר עברית ומשרד החינוך. בחינת תכניות גפן רלוונטיות. הקצאת לפחות 4 שעות שבועיות החל משכבה ג'.",
+    note:"",
+    gfan:[{code:"100", name:"אשכול שפות"}]
+  }
+];
+const planRows = [
+  { p:"1", t:"תכנית עברית כשפה שנייה", lvl:"רובד ממוקד", audience:"שכבות ג'–ו' (ה' — עדיפות ראשונה)", prog:"תכנית מפמ\"ר עב' לדוברי ע'", staff:"רכזת שפה + מחנכים", freq:"4 ש'/שבוע", kpi:"ירידה ל-<35% בשכבה ה'", date:"ינואר" },
+  { p:"1", t:"חיזוק מעורבות ומוטיבציה — שכבות ד'–ו'", lvl:"רובד אוניברסלי", audience:"כל ד'–ו' (ה'2 — עדיפות ראשונה)", prog:"פרויקטים מבוססי עניין / גפן", staff:"מחנכים + יועצת חינוכית + מנהלת", freq:"שוטף", kpi:"עלייה בזיהוי חוזקות ל-60%", date:"אוקטובר" },
+  { p:"1", t:"מענים רגשיים-חברתיים אוניברסלי", lvl:"רובד אוניברסלי", audience:"כל הכיתות (15)", prog:"SEL / 'בית ספר שמח'", staff:"כלל המחנכים + יועצת חינוכית", freq:"שעה/שבוע", kpi:"תיעוד ב-100% כיתות", date:"נובמבר" },
+  { p:"2", t:"קבוצות קריאה ממוקדות — שפת אם", lvl:"רובד ממוקד", audience:"ב'2, ג'3, ד'–ה'", prog:"מגדלור / קריאה בשכבה", staff:"רכזת שפה + מחנכת", freq:"3 פעמים/שבוע", kpi:"ירידה ב-10 נקודות", date:"ינואר" },
+  { p:"2", t:"ה'2 — תלמידים עם חשד ללקות למידה", lvl:"רובד אינטנסיבי", audience:"ה'2 — 5 תלמידים", prog:"ועדת שילוב + תגבור", staff:"יועצת חינוכית + פסיכולוגית + הורים", freq:"שוטף", kpi:"כל 5 נדונו בוועדה", date:"דצמבר" },
+  { p:"2", t:"ד'1 — תמיכה בניהול כיתה הטרוגנית", lvl:"רובד ממוקד", audience:"כיתה ד'1 (27 תלמ')", prog:"הוראה מובחנת / מחנכת שותפת", staff:"מחנכת + מחנכת שותפת", freq:"שוטף", kpi:"הפחתת 20% בדיווחי קשב/התנהגות", date:"ינואר" },
+  { p:"2", t:"ו'2 — מוכנות למעבר לחטיבה", lvl:"רובד ממוקד", audience:"כיתה ו'2", prog:"'גשר' — מעבר לחטיבה", staff:"יועצת חינוכית + מחנכת", freq:"שבועי", kpi:"ירידה ל-30% בקושי רגשי", date:"ינואר" },
+  { p:"3", t:"תכנית העשרה — מחוננים ומצטיינים", lvl:"רובד אוניברסלי", audience:"44 מחוננים ומצטיינים", prog:"אגף מחוננים / גפן", staff:"רכזת מחוננים", freq:"שבועי", kpi:"100% עם מענה מתועד", date:"נובמבר" },
+  { p:"3", t:"קשב ופעלתנות — ג'1 ותכנית שכבתית", lvl:"רובד ממוקד", audience:"ג'1, ד', ה' (קשב 25%+)", prog:"כישורי קשב / לגדול", staff:"יועצת חינוכית + מחנכת", freq:"2 פעמים/שבוע", kpi:"ירידת דיווחי קושי 25%", date:"ינואר" },
+  { p:"3", t:"ב'2 — בחינת הפער בשפת האם", lvl:"בדיקה", audience:"ב'2 (36 תלמ')", prog:"ניתוח גורמים + שיחה מקצועית", staff:"מנהלת + מחנכת ב'2", freq:"חד-פעמי", kpi:"זיהוי גורם + תכנית פעולה", date:"אוקטובר" }
+];
+
+// ═══════════════════════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════════════════════
+const tab1Charts = {};
+function initCharts(schoolGroups) {
+  // Compute group data: use schoolGroups if provided, else compute from classData
+  const grades = ['א','ב','ג','ד','ה','ו'];
+  let gradeGroupData, totalGroupData;
+
+  if (schoolGroups) {
+    gradeGroupData = schoolGroups.gradeGroups;
+    totalGroupData = schoolGroups.totalGroups;
+  } else {
+    // fallback: demo data
+    gradeGroupData = { 'א':{'תקינים':47,'מתקשיםל':9,'חברתית':7,'מתקשיםבכל':2,'מתקדמים':1}, 'ב':{'תקינים':49,'מתקשיםל':8,'חברתית':1,'מתקשיםבכל':8,'מתקדמים':4}, 'ג':{'תקינים':36,'מתקשיםל':18,'חברתית':3,'מתקשיםבכל':3,'מתקדמים':5}, 'ד':{'תקינים':23,'מתקשיםל':10,'חברתית':8,'מתקשיםבכל':8,'מתקדמים':13}, 'ה':{'תקינים':32,'מתקשיםל':16,'חברתית':6,'מתקשיםבכל':5,'מתקדמים':11}, 'ו':{'תקינים':29,'מתקשיםל':10,'חברתית':7,'מתקשיםבכל':6,'מתקדמים':3} };
+    totalGroupData = {'תקינים בכל':216,'מתקשים לימודית':71,'מתקשים חברתית-רגשית':40,'מתקשים בכל':32,'מתקדמים בכל':37};
+  }
+
+  const totalStudents = Object.values(totalGroupData).reduce((a,b)=>a+b,0) || 396;
+  const groupKeys = ['תקינים בכל','מתקשים לימודית','מתקשים חברתית-רגשית','מתקשים בכל','מתקדמים בכל'];
+  const groupColors = ['#0F766E','#F59E0B','#3B82F6','#EF4444','#22C55E'];
+
+  tab1Charts.groups = new Chart(document.getElementById('groupsChart'), {
+    type: 'doughnut',
+    data: {
+      labels: groupKeys,
+      datasets: [{ data: groupKeys.map(k=>totalGroupData[k]||0), backgroundColor: groupColors, borderWidth:2, borderColor:'#fff' }]
+    },
+    options: {
+      animation: false,
+      responsive:true, maintainAspectRatio:false, cutout:'62%',
+      plugins: {
+        legend: { display:true, position:'left', labels:{ font:{size:10,family:'Heebo'}, padding:8, boxWidth:10 } },
+        tooltip: { callbacks: { label: (c) => ` ${c.label}: ${c.raw} תלמידים (${Math.round(c.raw/totalStudents*100)}%)` } }
+      }
+    }
+  });
+
+  // Stacked grade groups - always use demo data baseline, override if schoolGroups provided
+  const gradeLabels = ["א'","ב'","ג'","ד'","ה'","ו'"];
+  const demoStacked = [
+    { label:'תקינים',           data:[47,49,36,23,32,29], backgroundColor:'#0F766E' },
+    { label:'מתקשים לימודית',  data:[9,8,18,10,16,10],   backgroundColor:'#F59E0B' },
+    { label:'חברתית-רגשית',    data:[7,1,3,8,6,7],       backgroundColor:'#3B82F6' },
+    { label:'מתקשים בכל',      data:[2,8,3,8,5,6],       backgroundColor:'#EF4444' },
+    { label:'מתקדמים',         data:[1,4,5,13,11,3],     backgroundColor:'#22C55E' }
+  ];
+
+  tab1Charts.gradeGroups = new Chart(document.getElementById('gradeGroupsChart'), {
+    type: 'bar',
+    data: { labels: gradeLabels, datasets: demoStacked },
+    options: {
+      animation: false,
+      responsive:true, maintainAspectRatio:false,
+      scales: {
+        x:{ stacked:true, ticks:{font:{size:12,family:'Heebo'}} },
+        y:{ stacked:true, ticks:{font:{size:11,family:'Heebo'}} }
+      },
+      plugins: { legend: { display:true, position:'bottom', labels:{font:{size:10,family:'Heebo'},padding:6,boxWidth:10} } }
+    }
+  });
+
+  // Strengths by grade
+  tab1Charts.strengths = new Chart(document.getElementById('strengthsChart'), {
+    type: 'bar',
+    data: {
+      labels: gradeLabels,
+      datasets: [{ label:'% עם חוזקה מזוהה', data:[83,94,93,64,39,63], backgroundColor:['#5EEAD4','#5EEAD4','#5EEAD4','#F59E0B','#EF4444','#F59E0B'], borderRadius:4 }]
+    },
+    options: {
+      animation: false,
+      responsive:true, maintainAspectRatio:false,
+      scales: {
+        x:{ ticks:{font:{size:12,family:'Heebo'}} },
+        y:{ max:100, ticks:{callback:v=>v+'%', font:{size:11,family:'Heebo'}} }
+      },
+      plugins:{ legend:{display:false} }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// HEATMAP
+// ═══════════════════════════════════════════════════════
+function getHmClass(v) {
+  if (v === null) return 'hm-na';
+  if (v <= 15) return 'hm-0';
+  if (v <= 25) return 'hm-1';
+  if (v <= 35) return 'hm-2';
+  if (v <= 49) return 'hm-3';
+  return 'hm-4';
+}
+function buildHeatmap() {
+  const cols = ['שפה','מתמטיקה','עברית_ערבית','אנגלית','מוטיבציה','קשב','התנהגות','רגשי','חברתי','חושי'];
+  const body = document.getElementById('heatmapBody');
+  heatmapData.forEach(row => {
+    const tr = document.createElement('tr');
+    let html = `<td class="grade-label">שכבה ${row.grade}' <span style="font-size:11px;font-weight:400;color:var(--gray-400)">(${row.n})</span></td>`;
+    cols.forEach(col => {
+      const v = row[col];
+      html += v === null
+        ? `<td><span class="hm-cell hm-na">—</span></td>`
+        : `<td><span class="hm-cell ${getHmClass(v)}">${v}%</span></td>`;
+    });
+    tr.innerHTML = html;
+    body.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// INTERVENTIONS
+// ═══════════════════════════════════════════════════════
+const mtssBadgeMap = {
+  "רובד אוניברסלי": "badge-green",
+  "רובד ממוקד":     "badge-amber",
+  "רובד אינטנסיבי": "badge-red",
+};
+// Background colors per MTSS level
+const mtssBgMap = {
+  "רובד אוניברסלי": { bg:"#F0FDF4", border:"#86EFAC" },
+  "רובד ממוקד":     { bg:"#FEFCE8", border:"#FDE047" },
+  "רובד אינטנסיבי": { bg:"#FFF1F2", border:"#FCA5A5" },
+};
+
+function isUniversal(iv) { return iv.mtss === "רובד אוניברסלי"; }
+function isIntensive(iv)  { return iv.mtss === "רובד אינטנסיבי"; }
+function isFocused(iv)    { return iv.mtss === "רובד ממוקד"; }
+function isSchoolWide(iv) { return iv.grades.includes('כלל'); }
+
+function mkSectionHeader(icon, label, color) {
+  const div = document.createElement('div');
+  div.style.cssText = `display:flex;align-items:center;gap:8px;margin:18px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--gray-200);`;
+  div.innerHTML = `<span style="font-size:16px;">${icon}</span><span style="font-size:13px;font-weight:600;color:${color};">${label}</span>`;
+  return div;
+}
+
+function buildCard(iv) {
+  const style = mtssBgMap[iv.mtss] || { bg:"#F8FAFC", border:"#CBD5E1" };
+  const mtssCls = mtssBadgeMap[iv.mtss] || 'badge-gray';
+  const gradeBadges = iv.grades.map(g =>
+    g === 'כלל'
+      ? `<span class="badge badge-blue" style="font-size:10px;">בית-ספרי</span>`
+      : `<span class="badge badge-teal" style="font-size:10px;">שכבה ${g}'</span>`
+  ).join(' ');
+  const noteHtml = iv.note
+    ? `<div style="margin-top:8px;padding:7px 10px;background:rgba(0,0,0,0.04);border-radius:6px;font-size:11px;color:var(--gray-600);border-right:3px solid ${style.border};">
+        <strong>שים לב:</strong> ${iv.note}
+       </div>`
+    : '';
+  let gfanHtml = '';
+  if (iv.gfan && iv.gfan.length) {
+    const OFFICIAL_URL = 'https://apps4.education.gov.il/tyh.extension.net/public/iturTochnit';
+    const pills = iv.gfan.map(item =>
+      `<span style="display:inline-flex;align-items:center;gap:5px;background:#EFF6FF;color:#1E40AF;border:1px solid #BFDBFE;border-radius:12px;padding:3px 10px;font-size:10px;margin:2px;">
+        <strong style="background:#1E40AF;color:white;border-radius:8px;padding:1px 5px;font-size:9px;">${item.code}</strong>
+        ${item.name}
+       </span>`
+    ).join('');
+    gfanHtml = `
+      <div style="margin-top:10px;padding:8px 10px;background:#F8FAFC;border-radius:6px;border:1px solid #E2E8F0;">
+        <div style="font-size:11px;font-weight:600;color:var(--gray-600);margin-bottom:4px;">🔎 תת-סל מומלץ במאגר תוכניות גפ"ן</div>
+        <div style="font-size:10px;color:var(--gray-600);margin-bottom:5px;">סנן לפי קוד תת-הסל המוצג:</div>
+        <div style="margin-bottom:7px;">${pills}</div>
+        <a href="${OFFICIAL_URL}" target="_blank" rel="noopener"
+           style="display:inline-block;padding:4px 12px;background:#1E40AF;color:white;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">← פתח מאגר תוכניות גפ"ן</a>
+        <span style="font-size:10px;color:var(--gray-400);margin-right:8px;">הבחירה בתוכנית ספציפית היא של המנהל/ת</span>
+      </div>`;
+  }
+  const div = document.createElement('div');
+  div.style.cssText = `background:${style.bg};border:1px solid ${style.border};border-radius:10px;padding:14px 16px;margin-bottom:10px;`;
+  div.innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="flex:1;">
+        <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:6px;">
+          ${gradeBadges}
+          <span class="badge ${mtssCls}" style="font-size:10px;">${iv.mtss}</span>
+          <span class="badge badge-gray" style="font-size:10px;">${iv.domain}</span>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--gray-800);margin-bottom:4px;">${iv.title}</div>
+        <div style="font-size:12px;color:var(--gray-600);line-height:1.6;">${iv.recs}</div>
+        ${noteHtml}
+        ${gfanHtml}
+      </div>
+    </div>`;
+  return div;
+}
+
+function buildInterventions(filter) {
+  const container = document.getElementById('interventionCards');
+  container.innerHTML = '';
+
+  if (filter === 'all') {
+    // רובד 1: אוניברסלי — כלל בית הספר
+    const tier1 = interventions.filter(iv => isSchoolWide(iv) && isUniversal(iv));
+    // רובד 2: ממוקד — מספר שכבות (לא בית-ספרי)
+    const tier2 = interventions.filter(iv => !isSchoolWide(iv) && isFocused(iv));
+    // רובד 3: אינטנסיבי — שכבה ספציפית, כיתה, או קבוצה
+    const tier3 = interventions.filter(iv => !isSchoolWide(iv) && isIntensive(iv));
+
+    if (tier1.length) {
+      container.appendChild(mkSectionHeader('🟢', 'רובד אוניברסלי — לכלל בית הספר', '#166534'));
+      tier1.forEach(iv => container.appendChild(buildCard(iv)));
+    }
+    if (tier2.length) {
+      container.appendChild(mkSectionHeader('🟡', 'רובד ממוקד — מספר שכבות', '#B45309'));
+      tier2.forEach(iv => container.appendChild(buildCard(iv)));
+    }
+    if (tier3.length) {
+      container.appendChild(mkSectionHeader('🔴', 'רובד אינטנסיבי — שכבה, כיתות או קבוצת תלמידים ספציפית', '#B91C1C'));
+      tier3.forEach(iv => container.appendChild(buildCard(iv)));
+    }
+
+  } else {
+    // לחיצה על שכבה ספציפית
+    // רובד 1: אוניברסלי בית-ספרי — תמיד רלוונטי
+    const tier1 = interventions.filter(iv => isSchoolWide(iv) && isUniversal(iv));
+    // רובד 2: ממוקד — כולל את השכבה הזו (רב-שכבתי)
+    const tier2 = interventions.filter(iv => !isSchoolWide(iv) && isFocused(iv) && iv.grades.includes(filter));
+    // רובד 3: אינטנסיבי — ספציפי לשכבה זו
+    const tier3 = interventions.filter(iv => !isSchoolWide(iv) && isIntensive(iv) && iv.grades.includes(filter));
+
+    if (tier1.length) {
+      container.appendChild(mkSectionHeader('🟢', `רובד אוניברסלי — לכלל בית הספר (רלוונטי גם לשכבה ${filter}')`, '#166534'));
+      tier1.forEach(iv => container.appendChild(buildCard(iv)));
+    }
+    if (tier2.length) {
+      container.appendChild(mkSectionHeader('🟡', `רובד ממוקד — שכבה ${filter}' ושכבות נוספות`, '#B45309'));
+      tier2.forEach(iv => container.appendChild(buildCard(iv)));
+    }
+    if (tier3.length) {
+      container.appendChild(mkSectionHeader('🔴', `רובד אינטנסיבי — ייעודי לשכבה ${filter}'`, '#B91C1C'));
+      tier3.forEach(iv => container.appendChild(buildCard(iv)));
+    }
+    if (!tier1.length && !tier2.length && !tier3.length) {
+      container.innerHTML = `<div style="color:var(--gray-400);font-size:13px;padding:20px 0;">אין המלצות התערבות ספציפיות לשכבה זו.</div>`;
+    }
+  }
+}
+function filterGrade(g, btn) {
+  document.querySelectorAll('#gradeFilter .grade-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildInterventions(g);
+}
+
+// ═══════════════════════════════════════════════════════
+// CLASS CARDS
+// ═══════════════════════════════════════════════════════
+const domainKeys = ['שפה','מתמטיקה','מוטיבציה','קשב','התנהגות','רגשי','חברתי','חושי'];
+const domainLabels = ['שפת אם','מתמטיקה','מוטיבציה','קשב','התנהגות','היבטים רגשיים','היבטים חברתיים','חושי-תנועתי'];
+const chartInstances = {};
+
+const classInsights = {
+  "א1": {
+    challenges: ["שפת אם וקשב בולטים — 26% ו-24% מתקשים, הגבוהים בשכבה א'","ריבוי קשיים קלים: רגשי, התנהגות, קשב — כולם על 21%, מרמזים על מורכבות כיתתית","4 תלמידים עם זכאות לחינוך מיוחד — ריכוז משמעותי לכיתה א'"],
+    strengths: ["פרופיל אמנותי עשיר: ציור, מוזיקה וספורט חזקים — 23, 14, 14 תלמידים בהתאמה","תחום המתמטיקה מאוזן יחסית עם 15% מתקדמים"],
+    attention: ["הפער בין השכבות: א'2 מציגה פרופיל הרבה יותר טוב — כדאי לבחון מה שונה בין שתי הכיתות","הכיתה היא הגדולה ביותר בשכבה (34 תלמידים) ויש בה גם אוכלוסייה ייחודית משמעותית — שאלה של עומס על המחנכת"]
+  },
+  "א2": {
+    challenges: ["קשב ושפה — 21% ו-18% מתקשים, קושי ראשוני שכדאי לעקוב אחריו","3 תלמידים עם זכאות לחינוך מיוחד"],
+    strengths: ["הפרופיל הכי בריא בשכבה א': 0% קשיים חברתיים, מוטיבציה נמוכה (6%), רגשי נמוך (6%)","ציור (11) וספורט (10) — נוכחות חזקה של חוזקות מזוהות כמעט לכל תלמיד"],
+    attention: ["כיתה זו יכולה לשמש מודל להשוואה עם א'1 — מה מסביר את הפרש של 17 נקודות אחוז במוטיבציה?","מומלץ לוודא שהכיתה אכן ממשיכה את המגמה החיובית לשנת הלימודים הבאה"]
+  },
+  "ב1": {
+    challenges: ["שפת אם: 31% מתקשים (8% ברמה חמורה) — 3 מתוך 10 תלמידים מתקשים בקריאה וכתיבה","7 תלמידים עם זכאות לחינוך מיוחד — הריכוז הגבוה ביותר בבית הספר לכיתה אחת","פרופיל אחיד של קושי מתון בכל התחומים (14%–22%) ללא 'נקודת שבר' ברורה"],
+    strengths: ["ציור (23), ספורט (8), יכולת הבעה (5) — כיתה עם חוזקות מגוונות","פרופיל אחיד — אין תלמידים 'בשוליים' הרבה, רוב הכיתה מתנהלת בטווח דומה"],
+    attention: ["7 תלמידי חינוך מיוחד מרוכזים בכיתה אחת — האם המחנכת מקבלת תמיכה מספקת?","המגמה בשפה — עשויה להמשיך ולגדול לשכבה ג' ללא התערבות ממוקדת כבר עכשיו"]
+  },
+  "ב2": {
+    challenges: ["שפת אם: 58% מתקשים — 47% מתקשה + 11% מתקשה מאוד. כמעט כל תלמיד שני מתקשה","0% מתקדמים בשפה — אין אף תלמיד ברמת מתקדם, בניגוד ל-11% בב'1","הפרש של 27 נקודות אחוז מב'1 באותה שנה ואותה תכנית — מחייב בחינת גורמים"],
+    strengths: ["ציור (24) וספורט (13) חזקים מאוד — פוטנציאל לחיבור לכתיבה יצירתית","פרופיל רגשי-חברתי תקין — הקושי ממוקד בשפה, לא בהתנהגות","פחות תלמידי חינוך מיוחד (1) — הקושי הלשוני אינו נובע מאוכלוסייה ייחודית בלבד"],
+    attention: ["עדיפות ראשונה להתערבות אינטנסיבית בשפה — קבוצות קריאה קטנות דחופות","מומלץ שיחה מקצועית עם המחנכת להבנת הגורמים לפרופיל הייחודי"]
+  },
+  "ג1": {
+    challenges: ["קשב: 35% מתקשים — הנתון הגבוה ביותר בכיתה ובשכבה ג'","שפה, מתמטיקה וחברתי — כולם על 25%, פרופיל של קשיים מפוזרים","0% מתקדמים כמעט בכל התחומים — הכיתה הומוגנית ברמת התקין, ללא 'כיוצאי דופן'"],
+    strengths: ["'תחום דעת בולט' מוגדר ל-11 תלמידים — עושר אינטלקטואלי לא ממומש","יכולת הבעה (6) — חוזק שניתן לנצל ללמידה שיתופית"],
+    attention: ["הכיתה הקטנה ביותר בבית הספר (20 תלמידים) — הזדמנות לתגבור מיקוד","קשב גבוה בלי חשד רשמי אחד כמעט — האם כל המקרים טופלו? מומלץ בירור עם היועצת"]
+  },
+  "ג2": {
+    challenges: ["התנהגות: 35% מתקשים (9% חמור) — הגבוה ביותר בשכבה ג'","מוטיבציה: 22% עם 13% ברמה חמורה — שיעור חומרה גבוה יחסית","5 תלמידי חינוך מיוחד — ריכוז גבוה בכיתה"],
+    strengths: ["מתמטיקה: 26% מתקדמים! — הגבוה ביותר בשכבה ג' ובין הגבוהים בכל בית הספר","יכולת הבעה (11) — חוזק דומיננטי; מנהיגות וחברה (4) — פוטנציאל לדינמיקה כיתתית חיובית"],
+    attention: ["המתח הפנימי בכיתה: כישרון מתמטי גבוה לצד קשיי התנהגות — ייתכן שהמחוננים מתוסכלים מהקצב","כדאי לנצל את כישרון המתמטיקה כ'גאווה כיתתית' ותרבות של הצלחה"]
+  },
+  "ג3": {
+    challenges: ["שפת אם: 49% מתקשים (30% ברמה חמורה!) — כמעט כל שני מתקשה","נתוני 0% בקשב ו-0% בחברתי — בלתי סביר סטטיסטית, מרמז על מילוי חלקי של הכלי"],
+    strengths: ["שפת אם: 30% מתקדמים — כיתה ביפולרית עם שני קצוות קיצוניים","ציור (18) וספורט (10) — נוכחות חוזקות גבוהה"],
+    attention: ["לפני כל התערבות — מומלץ שיחה עם המחנכת לאמת את הנתונים: האם 27 תלמידים באמת ללא קשיי קשב וחברה?","לכיתה עם 30% שפה חמורה ו-30% שפה מתקדמת — נדרשת הוראה מובחנת ברמה גבוהה"]
+  },
+  "ד1": {
+    challenges: ["קשב והתנהגות: 41% מתקשים בשניהם — שכיח מאוד ביחד עם אוכלוסיית מחוננים","שפה: 44% מתקשים (7% חמור) למרות 30% מתקדמים — פיצול חד","רגשי ומוטיבציה: 37% — עומס רגשי משמעותי"],
+    strengths: ["10 מחוננים ומצטיינים (37% מהכיתה) — ריכוז חסר תקדים בכיתה אחת","ספורט (21) חזק מאוד — פוטנציאל לתוכנית ספורט-למידה","רמת מתקדמים גבוהה בכל התחומים (41%–48%)"],
+    attention: ["הכיתה דורשת מחנכת שותפת — טווח הצרכים מקצה לקצה בלתי ניתן לניהול יחיד","מומלץ בתכנון הבא: לשקול הפרדה בין מסגרות לפי רמה לחלק מהשעות"]
+  },
+  "ד2": {
+    challenges: ["מוטיבציה: 36% מתקשים — הגבוה הברור בכיתה","שפה ומתמטיקה: 32% מתקשים בשניהם"],
+    strengths: ["7 מחוננים ומצטיינים מאותרים (32% מהכיתה) — פוטנציאל אקדמי גבוה","פרופיל רגשי-חברתי-התנהגותי נקי (לכאורה)"],
+    attention: ["נתוני 0% בקשב, רגשי, התנהגות וחושי עם תלמיד אחד בלבד עם חוזקות — מחייב אמות מידה: האם הכלי מולא כראוי?","7 מחוננים ללא מענה מתועד להעשרה — פער שדורש טיפול"]
+  },
+  "ד3": {
+    challenges: ["מוטיבציה: 48% מתקשים — הגבוה ביותר בשכבה ד'","התנהגות: 43% (14% חמור) — קשיי משמעת משמעותיים","מתמטיקה: 43% — כולל 10% חמור"],
+    strengths: ["ציור (20) וספורט (17) — חוזקות בולטות ביותר, כמעט כל תלמיד עם חוזקה","5 מחוננים ומצטיינים — גם כאן פוטנציאל אקדמי משמעותי","שפה: 33% מתקדמים לצד 34% מתקשים — כיתה עם פוטנציאל גבוה"],
+    attention: ["הקומבינציה של מוטיבציה נמוכה + קשיי התנהגות + כישרון — מרמזת על אוכלוסייה מתוסכלת שלא מקבלת מענה מאתגר מספיק","כדאי לנצל את ציור וספורט כמנוף מוטיבציוני ישיר"]
+  },
+  "ה1": {
+    challenges: ["מוטיבציה: 55% מתקשים (14% חמור) — הגבוהה ביותר בכיתה ובשכבה יחסית","הפרדוקס: שפה נמוכה יחסית (18%) ומתמטיקה עם 36% מתקדמים — אבל מוטיבציה קורסת"],
+    strengths: ["מתמטיקה: 36% מתקדמים — הכי גבוה בשכבה ה'","שפה: 23% מתקדמים — כישורים לשוניים טובים","מנהיגות וחברה (3) — פוטנציאל ריכוז חיובי"],
+    attention: ["משמעותי: הכיתה מסוגלת אקדמית אבל לא מחוברת. הפרדוקס בין יכולת גבוהה למוטיבציה נמוכה מצביע על תת-גירוי — הכיתה זקוקה לאתגר, לא לעוד חזרות","3 מחוננים ללא מענה מתועד"]
+  },
+  "ה2": {
+    challenges: ["מוטיבציה: 68% מתקשים (36% חמור) — הגבוה ביותר בכל בית הספר","מתמטיקה: פרופיל ביפולרי — 32% מתקדמים + 36% מתקשים (28% חמור!) — פיצול קיצוני","שפה: 44% מתקשים, 20% ברמה חמורה","5 תלמידים עם חשד ללקות למידה — ללא מענה מתועד"],
+    strengths: ["מתמטיקה: 32% מתקדמים — כישרון ריאלי בחלק מהתלמידים","3 מחוננים מאותרים — פוטנציאל שאינו ממומש"],
+    attention: ["כיתה זו דורשת התערבות דחופה ומקיפה — זו הכיתה בעלת הצרכים המרובים ביותר בבית הספר","5 לקויות למידה ללא ועדת שילוב = מחדל שיש לתקן מיידית","3 מחוננים בכיתה עם 68% קשיי מוטיבציה — שני קצוות ללא מענה"]
+  },
+  "ה3": {
+    challenges: ["כיתה ביפולרית ביותר בבית הספר: 35% מתקדמים לצד 30%–39% מתקשים בכמעט כל תחום","חברתי: 35% מתקשים + 30% מתקדמים — דינמיקה חברתית מורכבת מאוד","חושי-תנועתי: 39% מתקשים — הגבוה ביותר בשכבה ה'"],
+    strengths: ["10 מחוננים ומצטיינים! (43% מהכיתה) — הריכוז הגבוה ביותר בשכבה ה'","35% מתקדמים בשפה, רגשי, קשב ומוטיבציה — פוטנציאל אקדמי גבוה"],
+    attention: ["הכיתה מחייבת הוראה מובחנת ברמה גבוהה — ריכוז מחוננים לצד קשיים משמעותיים לא ניתן לניהול 'ממוצע'","הדינמיקה החברתית המורכבת (35%+30%) דורשת תשומת לב מיוחדת"]
+  },
+  "ו1": {
+    challenges: ["מוטיבציה: 33% מתקשים, 20% ברמה חמורה — 6 מתוך 30 תלמידים עם קושי מוטיבציוני עמוק","מתמטיקה: 37% מתקשים (10% חמור) — שיא בית הספר לכיתה ו'"],
+    strengths: ["שפת אם: 33% מתקדמים — הגבוה ביותר בשכבה ו'","מתמטיקה: 33% מתקדמים — הכי גבוה בין כיתות ו'","פרופיל רגשי-חברתי-התנהגותי תקין למדי — כיתה יציבה","5 מחוננים ומצטיינים"],
+    attention: ["כיתה מוצלחת יחסית עם נקודת תורפה אחת: מוטיבציה. כדאי לברר מה עומד מאחורי ה-20% החמורים","הפרדוקס: כישורי שפה ומתמטיקה גבוהים + 20% מוטיבציה חמורה — עשוי לרמז על תת-גירוי"]
+  },
+  "ו2": {
+    challenges: ["רגשי: 48% מתקשים (16% חמור) — גבוה ביותר בשכבה ו' ובבית הספר","מוטיבציה: 48% (8% חמור) — בשילוב עם הרגשי, תמונה של 'עייפות' לקראת חטיבה","חושי-תנועתי: 40% — גבוה בצורה חריגה","1 תלמיד/ה עם מאפייני סיכון — זקוק/ה לתשומת לב מיוחדת"],
+    strengths: ["ציור (14) וספורט (8) — עדיין יש חוזקות פעילות","חברתי יחסית בסדר (12%) — הכיתה שומרת על לכידות חברתית למרות הקשיים","מחוננים ומצטיינים (3) — פוטנציאל לדוגמניות חיובית"],
+    attention: ["כיתה זו מגיעה לחטיבה עם עומס רגשי כבד — נדרשת תכנית מעבר מובנית בשיתוף יועצת חינוכית","הצמד 'רגשי+מוטיבציה' גבוה גם לעומת ו'1 שמציגה 13% רגשי בלבד — כדאי לבחון גורמים ייחודיים לכיתה זו"]
+  }
+};
+
+function buildClassCards(filter) {
+  // Destroy existing charts
+  Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
+  Object.keys(chartInstances).forEach(k => delete chartInstances[k]);
+
+  const container = document.getElementById('classCards');
+  container.innerHTML = '';
+  const order = ['א1','א2','ב1','ב2','ג1','ג2','ג3','ד1','ד2','ד3','ה1','ה2','ה3','ו1','ו2'];
+  const show = filter === 'all' ? order : [filter];
+  container.style.gridTemplateColumns = filter !== 'all' ? '1fr' : 'repeat(3,1fr)';
+
+  const legendHtml = `
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px;color:var(--gray-600);">
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:2px;background:#166534;display:inline-block;"></span>מתקדם</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:2px;background:#86EFAC;display:inline-block;"></span>תקין</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:2px;background:#EAB308;display:inline-block;"></span>מתקשה</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:2px;background:#EF4444;display:inline-block;"></span>מתקשה מאוד</span>
+    </div>`;
+
+  const chartJobs = [];
+
+  show.forEach((cls, idx) => {
+    const d = classData[cls];
+    const ins = classInsights[cls] || computeInsights(cls, d);
+    const alertBadge = d.alert ? `<span class="alert-chip" style="font-size:10px;">${d.alert}</span>` : '';
+    const warnBadge  = (cls === 'ד2' || cls === 'ג3') ? `<span class="data-warn">בדוק מילוי</span>` : '';
+    const strList = Object.entries(d.strengths).map(([k,v]) =>
+      `<span class="strength-pill" style="font-size:11px;padding:3px 9px;">${k} <span class="s-count">${v}</span></span>`).join('');
+    const popList = Object.entries(d.pops).map(([k,v]) =>
+      `<span class="badge badge-blue" style="margin:2px;">${k}: ${v}</span>`).join('') || '<span class="no-data">לא דווח</span>';
+
+    const strVals = domainKeys.map(k => d.domains[k].str + d.domains[k].sev);
+    const maxStr = Math.max(...strVals);
+    const above35 = strVals.filter(v => v >= 35).length;
+    const above45 = strVals.filter(v => v >= 45).length;
+    const above30 = strVals.filter(v => v >= 30).length;
+    let headerBg;
+    if (maxStr >= 50 || above35 >= 4 || above45 >= 2) {
+      headerBg = '#FFF1F2'; // אדום — אנומליה
+    } else if (maxStr >= 35 || above30 >= 3) {
+      headerBg = '#FFFBEB'; // צהוב — לתשומת לב
+    } else {
+      headerBg = '#F0FDFA'; // ירוק — הטרוגניות רגילה
+    }
+    const canvasId = `cls_chart_${idx}`;
+
+    // Build insights HTML — shown only in single-class view
+    let insightsHtml = '';
+    if (filter !== 'all' && ins) {
+      const mkList = (arr, color, icon) => arr.map(t =>
+        `<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;">
+           <span style="font-size:14px;flex-shrink:0;">${icon}</span>
+           <span style="font-size:12px;color:var(--gray-600);line-height:1.6;">${t}</span>
+         </div>`).join('');
+      insightsHtml = `
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div style="font-size:12px;font-weight:600;color:#B91C1C;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #FEE2E2;">קשיים בולטים</div>
+          ${mkList(ins.challenges, '#B91C1C', '⚠️')}
+          <div style="font-size:12px;font-weight:600;color:#166534;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid #DCFCE7;">חוזקות ותחומי עניין</div>
+          ${mkList(ins.strengths, '#166534', '✅')}
+          <div style="font-size:12px;font-weight:600;color:#1E40AF;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid #DBEAFE;">למה כדאי לשים לב</div>
+          ${mkList(ins.attention, '#1E40AF', '🔍')}
+        </div>`;
+    }
+
+    // Layout: in single-class view wrap chart+insights side by side
+    const bodyContent = filter !== 'all'
+      ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+           <div>
+             ${legendHtml}
+             <div style="position:relative;height:${domainKeys.length * 36 + 24}px;width:100%;">
+               <canvas id="${canvasId}"></canvas>
+             </div>
+           </div>
+           <div>${insightsHtml}</div>
+         </div>
+         ${strList ? `<div style="margin-top:14px;"><div style="font-size:11px;font-weight:600;color:var(--teal);margin-bottom:6px;">חוזקות ותחומי עניין</div><div class="strength-list">${strList}</div></div>` : ''}
+         <div style="margin-top:10px;"><div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:6px;">אוכלוסיות ייחודיות</div>${popList}</div>`
+      : `${legendHtml}
+         <div style="position:relative;height:${domainKeys.length * 36 + 24}px;width:100%;">
+           <canvas id="${canvasId}"></canvas>
+         </div>
+         ${strList ? `<div style="margin-top:14px;"><div style="font-size:11px;font-weight:600;color:var(--teal);margin-bottom:6px;">חוזקות ותחומי עניין</div><div class="strength-list">${strList}</div></div>` : ''}
+         <div style="margin-top:10px;"><div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:6px;">אוכלוסיות ייחודיות</div>${popList}</div>`;
+
+    const card = document.createElement('div');
+    card.className = 'class-detail-card';
+    card.innerHTML = `
+      <div class="class-card-header" style="background:${headerBg}">
+        <div>
+          <div class="class-card-name">כיתה ${cls}</div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">שכבה ${d.grade}' · ${d.n} תלמידים</div>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">${alertBadge}${warnBadge}</div>
+      </div>
+      <div class="class-card-body">${bodyContent}</div>`;
+    container.appendChild(card);
+    chartJobs.push({ canvasId, cls, n: d.n, domains: d.domains });
+  });
+
+  setTimeout(() => {
+    chartJobs.forEach(({ canvasId, cls, n, domains }) => {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      try {
+        chartInstances[cls] = new Chart(canvas, {
+          type: 'bar',
+          data: {
+            labels: domainLabels,
+            datasets: [
+              { label:'מתקדם',      data: domainKeys.map(k => domains[k].adv), backgroundColor:'#166534' },
+              { label:'תקין',       data: domainKeys.map(k => domains[k].ok),  backgroundColor:'#86EFAC' },
+              { label:'מתקשה',      data: domainKeys.map(k => domains[k].str), backgroundColor:'#EAB308' },
+              { label:'מתקשה מאוד', data: domainKeys.map(k => domains[k].sev), backgroundColor:'#EF4444' }
+            ]
+          },
+          options: {
+            animation: false,
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked:true, max:100, ticks:{ callback: v=>v+'%', font:{size:10,family:'Heebo'} }, grid:{color:'rgba(0,0,0,0.05)'} },
+              y: { stacked:true, ticks:{ font:{size:11,family:'Heebo'} } }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => {
+                    const pct = ctx.raw;
+                    if (pct === 0) return null;
+                    return ` ${ctx.dataset.label}: ${pct}% (${Math.round(pct/100*n)} תלמידים)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      } catch(e) { console.error('Chart error', cls, e); }
+    });
+  }, 50);
+}
+function filterClass(cls, btn) {
+  document.querySelectorAll('#classFilter .grade-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildClassCards(cls);
+}
+
+
+// ═══════════════════════════════════════════════════════
+// PLAN TABLE
+// ═══════════════════════════════════════════════════════
+const EDITABLE_COLS = ['prog','staff','freq','kpi','date','notes'];
+const SAVE_KEY = 'anchor_plan_edits';
+
+function buildPlanTable() {
+  const tbody = document.getElementById('planBody');
+  const priColors = { '1':'priority-high', '2':'priority-medium', '3':'priority-low' };
+  const priLabels = { '1':'גבוהה', '2':'בינונית', '3':'נמוכה' };
+  const savedData = getSavedData();
+
+  planRows.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    const getVal = col => (savedData[i] && savedData[i][col] != null) ? savedData[i][col] : (row[col] || '');
+
+    const editStyle = 'min-width:80px;outline:none;cursor:text;';
+    const mkEdit = col => `<td contenteditable="true" data-row="${i}" data-col="${col}"
+        style="${editStyle}" spellcheck="false">${getVal(col)}</td>`;
+
+    tr.innerHTML = `
+      <td class="${priColors[row.p]}">${priLabels[row.p]}</td>
+      <td style="font-weight:600;">${row.t}</td>
+      <td><span class="badge ${row.p==='1'?'badge-red':row.p==='2'?'badge-amber':'badge-teal'}">${row.lvl}</span></td>
+      <td>${row.audience}</td>
+      ${mkEdit('prog')}
+      ${mkEdit('staff')}
+      ${mkEdit('freq')}
+      ${mkEdit('kpi')}
+      ${mkEdit('date')}
+      ${mkEdit('notes')}`;
+    tbody.appendChild(tr);
+  });
+
+  // Highlight editable cells on focus
+  tbody.querySelectorAll('[contenteditable]').forEach(cell => {
+    cell.addEventListener('focus', () => cell.style.background = '#FFFBEB');
+    cell.addEventListener('blur',  () => cell.style.background = '');
+  });
+}
+
+function getSavedData() {
+  try { return JSON.parse(localStorage.getItem(SAVE_KEY) || '{}'); }
+  catch(e) { return {}; }
+}
+
+function collectEdits() {
+  const data = {};
+  document.querySelectorAll('#planBody [contenteditable]').forEach(cell => {
+    const r = cell.dataset.row;
+    const c = cell.dataset.col;
+    if (!data[r]) data[r] = {};
+    data[r][c] = cell.innerText.trim();
+  });
+  return data;
+}
+
+function exportPlanData() {
+  const data = collectEdits();
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'תוכנית_עבודה_עוגן.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  // Also save to localStorage as backup
+  localStorage.setItem(SAVE_KEY, json);
+  const status = document.getElementById('saveStatus');
+  status.textContent = '✓ הקובץ הורד לתיקיית ההורדות';
+  setTimeout(() => status.textContent = '', 4000);
+}
+
+function importPlanData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      document.querySelectorAll('#planBody [contenteditable]').forEach(cell => {
+        const r = cell.dataset.row;
+        const c = cell.dataset.col;
+        if (data[r] && data[r][c] != null) cell.innerText = data[r][c];
+      });
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+      const status = document.getElementById('saveStatus');
+      status.textContent = '✓ הנתונים נטענו בהצלחה';
+      setTimeout(() => status.textContent = '', 3000);
+    } catch(err) {
+      alert('שגיאה בקריאת הקובץ. אנא וודאי שמדובר בקובץ JSON תקין.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ─── Print current tab only — let browser print canvas natively ───
+function printCurrentTab() {
+  const activePaneId = document.querySelector('.tab-pane.active')?.id;
+  if (!activePaneId) return;
+
+  const style = document.createElement('style');
+  style.id = 'print-single-tab';
+  style.textContent = `@media print { #${activePaneId} { display:block !important; } }`;
+  document.head.appendChild(style);
+
+  window.print();
+
+  setTimeout(() => document.getElementById('print-single-tab')?.remove(), 500);
+}
+
+// ═══════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════
+function showTab(id) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+// WELCOME SCREEN — FILE UPLOAD & PARSING
+// ═══════════════════════════════════════════════════════
+let uploadedClassFiles = {};  // { className: File }
+let uploadedSchoolFile = null;
+let uploadedSchoolFiles = [];
+
+function extractClassName(filename) {
+  let name = filename.replace(/\.xls[x]?$/i, '');
+  name = name.replace(/^כיתה[\s_\-]*/i, '');
+  return name.trim();
+}
+
+function handleClassFiles(input) {
+  const files = Array.from(input.files);
+  uploadedClassFiles = {};
+  const listEl = document.getElementById('classFilesList');
+  listEl.innerHTML = '';
+  files.forEach(f => {
+    const cls = extractClassName(f.name);
+    if (cls) {
+      uploadedClassFiles[cls] = f;
+      const d = document.createElement('div');
+      d.className = 'file-ok';
+      d.textContent = `${f.name} → כיתה ${cls}`;
+      listEl.appendChild(d);
+    } else {
+      const d = document.createElement('div');
+      d.className = 'file-err';
+      d.textContent = `${f.name} — לא זוהה שם כיתה`;
+      listEl.appendChild(d);
+    }
+  });
+  updateProcessBtn();
+}
+
+function handleSchoolFile(input) {
+  const files = Array.from(input.files);
+  uploadedSchoolFile = files.length > 0 ? files[0] : null; // use first for groups parse
+  uploadedSchoolFiles = files; // keep all for future use
+  const el = document.getElementById('schoolFileName');
+  el.innerHTML = files.map(f => `<div class="file-ok">${f.name}</div>`).join('');
+  updateProcessBtn();
+}
+
+function updateProcessBtn() {
+  document.getElementById('processBtn').disabled = Object.keys(uploadedClassFiles).length === 0;
+}
+
+function readFileAsArrayBuffer(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload  = e => res(e.target.result);
+    r.onerror = () => rej(new Error('קריאת קובץ נכשלה'));
+    r.readAsArrayBuffer(file);
+  });
+}
+
+async function parseClassFile(file, className) {
+  const buf = await readFileAsArrayBuffer(file);
+  const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
+  const sheetName = wb.SheetNames.find(n => !n.includes('Evaluation')) || wb.SheetNames[0];
+  const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header:1, defval:'' });
+
+  const domainCols = { 'שפה':1, 'חברתי':2, 'מתמטיקה':5, 'מוטיבציה':7, 'רגשי':8, 'התנהגות':9, 'קשב':10, 'חושי':11 };
+  const counts = {};
+  Object.keys(domainCols).forEach(d => counts[d] = { adv:0, ok:0, str:0, sev:0 });
+  const strengths = {}, pops = {};
+  let n = 0;
+
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const name = String(row[0] || '').trim();
+    if (!name.includes('תלמיד')) continue;
+    n++;
+    const det = rows[i+1] || [];
+    for (const [domain, col] of Object.entries(domainCols)) {
+      const v = String(row[col] || '').trim();
+      if      (v === 'מתקדם')       counts[domain].adv++;
+      else if (v === 'תקין')        counts[domain].ok++;
+      else if (v === 'מתקשה')       counts[domain].str++;
+      else if (v === 'מתקשה מאוד')  counts[domain].sev++;
+    }
+    String(det[3]||'').trim().split('\n').forEach(s => {
+      const c = s.trim().replace(/^-\s*/,''); if(c) strengths[c] = (strengths[c]||0)+1;
+    });
+    String(det[4]||'').trim().split('\n').forEach(p => {
+      const c = p.trim().replace(/^-\s*/,''); if(c) pops[c] = (pops[c]||0)+1;
+    });
+  }
+  if (n === 0) return null;
+
+  const domains = {};
+  for (const [d, c] of Object.entries(counts)) {
+    domains[d] = {
+      adv: Math.round(c.adv/n*100), ok:  Math.round(c.ok/n*100),
+      str: Math.round(c.str/n*100), sev: Math.round(c.sev/n*100)
+    };
+  }
+  const topStrengths = Object.fromEntries(Object.entries(strengths).sort((a,b)=>b[1]-a[1]).slice(0,5));
+  return { n, grade: className[0], domains, strengths: topStrengths, pops };
+}
+
+async function parseSchoolGroupsFile(file) {
+  const buf = await readFileAsArrayBuffer(file);
+  const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
+  const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+  const gradeGroups = {}, seen = new Set(), totalGroups = {};
+  data.forEach(row => {
+    const id = row["מס' סידורי"], grade = row['שכבה'], group = row['קבוצה'];
+    if (!id || !grade || !group || group === '-') return;
+    if (seen.has(String(id))) return;
+    seen.add(String(id));
+    if (!gradeGroups[grade]) gradeGroups[grade] = {};
+    gradeGroups[grade][group] = (gradeGroups[grade][group]||0)+1;
+    totalGroups[group] = (totalGroups[group]||0)+1;
+  });
+  return { gradeGroups, totalGroups };
+}
+
+async function processFiles() {
+  const status = document.getElementById('processStatus');
+  const btn = document.getElementById('processBtn');
+  btn.disabled = true;
+  status.textContent = '⏳ קורא קבצים...';
+
+  const newClassData = {};
+  const clsNames = Object.keys(uploadedClassFiles);
+
+  for (let i = 0; i < clsNames.length; i++) {
+    const cls = clsNames[i];
+    status.textContent = `⏳ מנתח כיתה ${cls} (${i+1}/${clsNames.length})...`;
+    try {
+      const result = await parseClassFile(uploadedClassFiles[cls], cls);
+      if (result) newClassData[cls] = result;
+    } catch(e) { console.error('Error parsing', cls, e); }
+  }
+
+  if (Object.keys(newClassData).length === 0) {
+    status.textContent = '❌ לא ניתן לקרוא אף קובץ כיתה. בדוק/י שמות קבצים.';
+    btn.disabled = false;
+    return;
+  }
+
+  // School groups file
+  let schoolGroups = null;
+  if (uploadedSchoolFile) {
+    status.textContent = '⏳ מנתח קובץ בית-ספרי...';
+    try { schoolGroups = await parseSchoolGroupsFile(uploadedSchoolFile); } catch(e) {}
+  }
+
+  status.textContent = '✅ הנתונים עובדו בהצלחה! טוען דשבורד...';
+  const schoolName = Object.values(uploadedClassFiles)[0]?.name.split('/').pop().split('\\').pop() || 'בית הספר';
+
+  launchDashboard(newClassData, schoolGroups, false);
+}
+
+function loadDemoMode() {
+  launchDashboard(null, null, true);
+}
+
+function launchDashboard(parsedData, schoolGroups, isDemo) {
+  if (parsedData) Object.assign(classData, parsedData);
+
+  document.getElementById('welcomeScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  if (isDemo) document.getElementById('demoBadge').style.display = 'inline-block';
+
+  // Update school year badge
+  const classList = Object.keys(classData);
+  document.getElementById('schoolYearBadge').textContent =
+    `${classList.length} כיתות · ${Object.values(classData).reduce((s,d)=>s+d.n,0)} תלמידים`;
+
+  // Build dashboard with (possibly dynamic) data
+  initCharts(schoolGroups);
+  buildHeatmap();
+  buildInterventions('all');
+  buildClassCards('all');
+  buildPlanTable();
+}
+
+function backToUpload() {
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('welcomeScreen').style.display = 'flex';
+  document.getElementById('demoBadge').style.display = 'none';
+  // Destroy all charts
+  Object.values(tab1Charts).forEach(c => { try { c.destroy(); } catch(e){} });
+  Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
+  Object.keys(tab1Charts).forEach(k => delete tab1Charts[k]);
+  Object.keys(chartInstances).forEach(k => delete chartInstances[k]);
+  document.getElementById('heatmapBody').innerHTML = '';
+  document.getElementById('planBody').innerHTML = '';
+}
+
+// ─── Auto-computed insights for dynamically uploaded classes ───
+function computeInsights(cls, d) {
+  const dN = { 'שפה':'שפת אם', 'מתמטיקה':'מתמטיקה', 'מוטיבציה':'מוטיבציה', 'קשב':'קשב', 'התנהגות':'התנהגות', 'רגשי':'היבטים רגשיים', 'חברתי':'היבטים חברתיים', 'חושי':'חושי-תנועתי' };
+  const challenges = [], strengths = [], attention = [];
+
+  const sorted = domainKeys.map(k => ({ k, total: d.domains[k].str+d.domains[k].sev, sev: d.domains[k].sev })).sort((a,b)=>b.total-a.total);
+  sorted.forEach(({ k, total, sev }) => {
+    if (total >= 25) {
+      const sevNote = sev >= 10 ? ` (מתוכם ${sev}% ברמה חמורה)` : '';
+      challenges.push(`${dN[k]}: ${total}% מתקשים${sevNote}`);
+    }
+  });
+  if (!challenges.length && sorted[0].total > 0)
+    challenges.push(`הקושי הגבוה ביותר: ${dN[sorted[0].k]} (${sorted[0].total}%)`);
+
+  domainKeys.map(k => ({ k, adv: d.domains[k].adv })).sort((a,b)=>b.adv-a.adv).forEach(({ k, adv }) => {
+    if (adv >= 20) strengths.push(`${dN[k]}: ${adv}% מתקדמים`);
+  });
+  Object.entries(d.strengths||{}).slice(0,2).forEach(([name,cnt]) => strengths.push(`תחום עניין בולט: ${name} (${cnt} תלמידים)`));
+  if (!strengths.length) strengths.push('לא זוהו תחומי חוזק — מומלץ לאמת מילוי הכלי');
+
+  const highSev = domainKeys.filter(k => d.domains[k].sev >= 15);
+  if (highSev.length) attention.push(`שיעור "מתקשה מאוד" גבוה (15%+) בתחומים: ${highSev.map(k=>dN[k]).join(', ')}`);
+  const polarized = domainKeys.filter(k => d.domains[k].adv>=20 && d.domains[k].str+d.domains[k].sev>=25);
+  if (polarized.length) attention.push(`פיצול בין מתקדמים למתקשים בתחומים: ${polarized.map(k=>dN[k]).join(', ')} — נדרשת הוראה מובחנת`);
+  if (!attention.length) attention.push('פרופיל מאוזן — אין ממצא בולט לדאגה מיוחדת');
+
+  return { challenges, strengths, attention };
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT — wait for user action (upload or demo)
+// ═══════════════════════════════════════════════════════
+// No automatic init — dashboard loads after file upload or demo selection
+</script>
+</body>
+</html>
