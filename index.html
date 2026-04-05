@@ -330,25 +330,26 @@ td[contenteditable] { transition: background .15s; border-radius: 4px; }
 td[contenteditable]:hover { background: var(--gray-50); }
 
 /* ─── Welcome screen ─── */
-#welcomeScreen { min-height:100vh; background:linear-gradient(160deg,#F0FDFA 0%,#EFF6FF 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px; }
+#welcomeScreen { min-height:100vh; background:linear-gradient(160deg,#0a5c3f 0%,#1a8558 45%,#0e6da8 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px; }
 .welcome-anchor { font-size:56px; line-height:1; margin-bottom:10px; text-align:center; }
-.welcome-title  { font-size:24px; font-weight:700; color:var(--teal); text-align:center; margin-bottom:6px; }
-.welcome-sub    { font-size:13px; color:var(--gray-600); text-align:center; margin-bottom:32px; }
-.welcome-cards  { display:grid; grid-template-columns:1fr 1fr; gap:18px; width:100%; max-width:800px; margin-bottom:24px; }
-.upload-card { background:var(--white); border:1px solid var(--gray-200); border-radius:14px; padding:22px; box-shadow:var(--shadow); }
-.upload-card h3 { font-size:14px; font-weight:600; color:var(--gray-800); margin-bottom:6px; }
+.welcome-title  { font-size:24px; font-weight:700; color:#0a5c3f; text-align:center; margin-bottom:6px; }
+.welcome-sub    { font-size:13px; color:#1a6b5a; text-align:center; margin-bottom:32px; }
+.welcome-cards  { display:grid; grid-template-columns:1fr 1fr; gap:18px; width:100%; margin-bottom:24px; }
+.upload-card { background:rgba(255,255,255,0.88); border:1px solid rgba(255,255,255,0.7); border-radius:14px; padding:22px; box-shadow:0 2px 12px rgba(0,60,80,0.1); }
+.upload-card h3 { font-size:14px; font-weight:600; color:#0a5c3f; margin-bottom:6px; }
 .upload-card p  { font-size:12px; color:var(--gray-600); line-height:1.55; margin-bottom:12px; }
-.upload-label { display:inline-block; padding:7px 16px; border-radius:8px; border:1.5px solid var(--teal); color:var(--teal); font-size:12px; font-weight:600; cursor:pointer; transition:background .12s; margin-bottom:10px; }
-.upload-label:hover { background:var(--teal-light); }
+.upload-label { display:inline-block; padding:7px 16px; border-radius:8px; border:1.5px solid #1a8558; color:#1a8558; font-size:12px; font-weight:600; cursor:pointer; transition:background .12s; margin-bottom:10px; }
+.upload-label:hover { background:#e8f5ee; }
 .file-list { font-size:11px; color:var(--gray-600); line-height:1.8; }
 .file-ok::before  { content:'✅ '; }
 .file-err::before { content:'⚠️ '; }
 .welcome-actions { display:flex; gap:12px; justify-content:center; margin-bottom:12px; }
-.btn-process { padding:12px 32px; border-radius:10px; background:linear-gradient(135deg,var(--teal) 0%,var(--blue) 100%); color:white; font-family:'Heebo',sans-serif; font-size:14px; font-weight:700; border:none; cursor:pointer; }
+.btn-process { padding:12px 32px; border-radius:10px; background:linear-gradient(135deg,#0a5c3f 0%,#1a8558 100%); color:white; font-family:'Heebo',sans-serif; font-size:14px; font-weight:700; border:none; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,0.2); }
+.btn-process:hover { background:linear-gradient(135deg,#083d2a 0%,#13663f 100%); }
 .btn-process:disabled { opacity:0.4; cursor:not-allowed; }
-.btn-demo { padding:12px 22px; border-radius:10px; background:white; color:var(--gray-600); font-family:'Heebo',sans-serif; font-size:13px; font-weight:500; border:1.5px solid var(--gray-200); cursor:pointer; }
-.btn-demo:hover { border-color:var(--teal); color:var(--teal); }
-#processStatus { font-size:12px; color:var(--teal); text-align:center; min-height:18px; }
+.btn-demo { padding:12px 22px; border-radius:10px; background:white; color:#1a8558; font-family:'Heebo',sans-serif; font-size:13px; font-weight:500; border:1.5px solid #1a8558; cursor:pointer; }
+.btn-demo:hover { background:#e8f5ee; border-color:#0a5c3f; }
+#processStatus { font-size:12px; color:#0a5c3f; text-align:center; min-height:18px; font-weight:600; }
 .demo-badge { background:var(--amber-light); color:var(--amber); font-size:11px; font-weight:600; padding:2px 10px; border-radius:20px; margin-right:6px; }
 
 @media print {
@@ -369,8 +370,11 @@ td[contenteditable]:hover { background: var(--gray-50); }
 
 <!-- ════════ WELCOME SCREEN ════════ -->
 <div id="welcomeScreen">
+  <!-- Inner frame -->
+  <div style="background:linear-gradient(170deg,#e8f7fb 0%,#d0eef7 60%,#bce4f2 100%);border-radius:24px;padding:36px 40px 28px;max-width:860px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.5);">
+
   <!-- Logo bar -->
-  <div style="display:flex;justify-content:space-between;align-items:center;width:100%;max-width:820px;margin-bottom:24px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:24px;">
 
     <!-- Left: Ministry of Education -->
     <div style="display:flex;flex-direction:column;align-items:center;">
@@ -380,7 +384,8 @@ td[contenteditable]:hover { background: var(--gray-50); }
     <!-- Center: anchor + title -->
     <div style="text-align:center;">
       <div class="welcome-anchor">⚓</div>
-      <div class="welcome-title">"עוגן-פלוס" למנהל/ת — תוכנית התערבות בית-ספרית</div>
+      <div class="welcome-title">"עוגן-פלוס" למנהל/ת</div>
+      <div style="font-size:16px;font-weight:600;color:#1a8558;text-align:center;margin-bottom:6px;">תוכנית התערבות בית-ספרית</div>
     </div>
 
     <!-- Right: Yesodi + Al-Yesodi -->
@@ -419,6 +424,8 @@ td[contenteditable]:hover { background: var(--gray-50); }
     <button class="btn-demo" onclick="loadDemoMode()">טעינת נתוני דוגמה</button>
   </div>
   <div id="processStatus"></div>
+
+  </div><!-- end inner frame -->
 </div>
 
 <!-- ════════ MAIN APP ════════ -->
