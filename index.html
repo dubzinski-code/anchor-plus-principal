@@ -190,10 +190,10 @@ body {
   font-weight: 600;
   text-align: center;
 }
-.hm-0  { background: #F0FDF4; color: #166534; }
+.hm-0  { background: #DCFCE7; color: #166534; }
 .hm-1  { background: #FEF9C3; color: #854D0E; }
-.hm-2  { background: #FEF3C7; color: #92400E; }
-.hm-3  { background: #FECACA; color: #991B1B; }
+.hm-2  { background: #FED7AA; color: #9A3412; }
+.hm-3  { background: #FECACA; color: #7F1D1D; }
 .hm-4  { background: #FCA5A5; color: #7F1D1D; }
 .hm-na { background: var(--gray-100); color: var(--gray-400); font-size: 10px; }
 
@@ -446,7 +446,7 @@ td[contenteditable]:hover { background: var(--gray-50); }
 <div class="tab-bar">
   <button class="tab-btn active" onclick="showTab('tab1')">📊 תמונת מצב בית-ספרית</button>
   <button class="tab-btn" onclick="showTab('tab2')">🗺️ תמונת מצב ותוכנית התערבות שכבתית</button>
-  <button class="tab-btn" onclick="showTab('tab3')">🔍 מבט על כיתה</button>
+  <button class="tab-btn" onclick="showTab('tab3')">🔍 מבט-על לפי כיתות</button>
   <button class="tab-btn" onclick="showTab('tab4')">📋 תוכנית עבודה וניצול משאבים</button>
   <button onclick="printCurrentTab()" style="margin-right:auto;margin-left:12px;padding:8px 16px;border-radius:8px;border:1px solid var(--gray-200);background:var(--gray-50);font-family:'Heebo',sans-serif;font-size:12px;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:5px;" title="הדפסת הלשונית הנוכחית">🖨️ הדפס לשונית זו</button>
 </div>
@@ -738,26 +738,26 @@ td[contenteditable]:hover { background: var(--gray-50); }
     </table>
     </div>
     <div class="legend">
-      <div class="legend-item"><div class="legend-box" style="background:#F0FDF4;border:1px solid #86EFAC;"></div>עד 15%</div>
-      <div class="legend-item"><div class="legend-box" style="background:#FEF9C3;border:1px solid #FDE047;"></div>16%–25%</div>
-      <div class="legend-item"><div class="legend-box" style="background:#FEF3C7;border:1px solid #FCD34D;"></div>26%–35%</div>
-      <div class="legend-item"><div class="legend-box" style="background:#FECACA;border:1px solid #F87171;"></div>36%–49%</div>
-      <div class="legend-item"><div class="legend-box" style="background:#FCA5A5;border:1px solid #EF4444;"></div>50%+</div>
+      <div class="legend-item"><div class="legend-box" style="background:#DCFCE7;border:1px solid #86EFAC;"></div>עד 15%</div>
+      <div class="legend-item"><div class="legend-box" style="background:#FEF9C3;border:1px solid #FDE047;"></div>16%–35%</div>
+      <div class="legend-item"><div class="legend-box" style="background:#FED7AA;border:1px solid #FB923C;"></div>36%–49%</div>
+      <div class="legend-item"><div class="legend-box" style="background:#FECACA;border:1px solid #DC2626;"></div>50%+</div>
       <div class="legend-item"><div class="legend-box" style="background:var(--gray-100);border:1px solid var(--gray-200);"></div>לא רלוונטי לשכבה</div>
     </div>
   </div>
 
   <div class="section-title">המלצות התערבות לפי שכבה ותחום</div>
-  <div style="margin-bottom:20px;">
+  <div style="margin-bottom:8px;">
     <div class="grade-filter" id="gradeFilter">
-      <button class="grade-btn active" onclick="filterGrade('all',this)">כל השכבות</button>
-      <button class="grade-btn" onclick="filterGrade('א',this)">שכבה א'</button>
-      <button class="grade-btn" onclick="filterGrade('ב',this)">שכבה ב'</button>
-      <button class="grade-btn" onclick="filterGrade('ג',this)">שכבה ג'</button>
-      <button class="grade-btn" onclick="filterGrade('ד',this)">שכבה ד'</button>
-      <button class="grade-btn" onclick="filterGrade('ה',this)">שכבה ה'</button>
-      <button class="grade-btn" onclick="filterGrade('ו',this)">שכבה ו'</button>
+      <button class="grade-btn active" data-grade="all" onclick="filterGrade('all',this)">כל השכבות</button>
+      <button class="grade-btn" data-grade="א" onclick="filterGrade('א',this)">שכבה א'</button>
+      <button class="grade-btn" data-grade="ב" onclick="filterGrade('ב',this)">שכבה ב'</button>
+      <button class="grade-btn" data-grade="ג" onclick="filterGrade('ג',this)">שכבה ג'</button>
+      <button class="grade-btn" data-grade="ד" onclick="filterGrade('ד',this)">שכבה ד'</button>
+      <button class="grade-btn" data-grade="ה" onclick="filterGrade('ה',this)">שכבה ה'</button>
+      <button class="grade-btn" data-grade="ו" onclick="filterGrade('ו',this)">שכבה ו'</button>
     </div>
+    <div style="font-size:11px;color:var(--gray-400);margin-top:5px;">ניתן לסמן מספר שכבות בו-זמנית. לחיצה על "כל השכבות" מאפסת את הבחירה.</div>
   </div>
   <div id="interventionCards"></div>
 
@@ -816,7 +816,7 @@ td[contenteditable]:hover { background: var(--gray-50); }
   <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
     <button onclick="exportPlanData()" style="padding:7px 16px;border-radius:8px;border:1.5px solid var(--teal);background:var(--teal);color:white;font-family:'Heebo',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">💾 ייצוא לקובץ</button>
     <button onclick="document.getElementById('importFile').click()" style="padding:7px 16px;border-radius:8px;border:1.5px solid var(--teal);background:white;color:var(--teal);font-family:'Heebo',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">📂 ייבוא מקובץ</button>
-    <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importPlanData(event)">
+    <button onclick="clearNotes()" style="padding:7px 16px;border-radius:8px;border:1.5px solid var(--gray-300);background:white;color:var(--gray-500);font-family:'Heebo',sans-serif;font-size:12px;cursor:pointer;" title="מחק את תוכן כל תאי ההערות">🗑️ נקה הערות</button>
     <span id="saveStatus" style="font-size:11px;color:var(--teal);align-self:center;"></span>
   </div>
   <div style="font-size:11px;color:var(--gray-600);margin-bottom:14px;padding:8px 12px;background:var(--gray-50);border-radius:8px;border:1px solid var(--gray-200);">
@@ -829,16 +829,18 @@ td[contenteditable]:hover { background: var(--gray-50); }
   <table class="plan-table" id="planTable">
     <thead>
       <tr>
-        <th style="width:55px;">עדיפות</th>
-        <th style="width:140px;">יעד / התערבות</th>
-        <th style="width:100px;">רובד MTSS</th>
-        <th style="width:110px;">קהל יעד</th>
-        <th style="width:140px;" class="editable-col">תוכנית / מקור (גפן) ✏️</th>
-        <th style="width:120px;" class="editable-col">כוח אדם אחראי ✏️</th>
-        <th style="width:80px;" class="editable-col">תדירות ✏️</th>
-        <th style="width:110px;" class="editable-col">מדד הצלחה ✏️</th>
-        <th style="width:75px;" class="editable-col">מועד בדיקה ✏️</th>
-        <th style="width:140px;" class="editable-col">הערות ✏️</th>
+        <th style="width:50px;">עדיפות</th>
+        <th style="width:130px;">יעד / התערבות</th>
+        <th style="width:90px;">רובד MTSS</th>
+        <th style="width:100px;">קהל יעד</th>
+        <th style="width:110px;" class="editable-col">תוצאה רצויה ✏️</th>
+        <th style="width:130px;" class="editable-col">המלצה להתערבות ✏️</th>
+        <th style="width:120px;" class="editable-col">פעולות מומלצות ✏️</th>
+        <th style="width:100px;" class="editable-col">אחריות ✏️</th>
+        <th style="width:75px;" class="editable-col">תדירות ✏️</th>
+        <th style="width:110px;" class="editable-col">דרכי הערכה ✏️</th>
+        <th style="width:85px;" class="editable-col">בקרה ✏️</th>
+        <th style="width:130px;" class="editable-col">הערות ✏️</th>
       </tr>
     </thead>
     <tbody id="planBody"></tbody>
@@ -962,16 +964,105 @@ const interventions = [
   }
 ];
 const planRows = [
-  { p:"1", t:"תכנית עברית כשפה שנייה", lvl:"רובד ממוקד", audience:"שכבות ג'–ו' (ה' — עדיפות ראשונה)", prog:"תכנית מפמ\"ר עב' לדוברי ע'", staff:"רכזת שפה + מחנכים", freq:"4 ש'/שבוע", kpi:"ירידה ל-<35% בשכבה ה'", date:"ינואר" },
-  { p:"1", t:"חיזוק מעורבות ומוטיבציה — שכבות ד'–ו'", lvl:"רובד אוניברסלי", audience:"כל ד'–ו' (ה'2 — עדיפות ראשונה)", prog:"פרויקטים מבוססי עניין / גפן", staff:"מחנכים + יועצת חינוכית + מנהלת", freq:"שוטף", kpi:"עלייה בזיהוי חוזקות ל-60%", date:"אוקטובר" },
-  { p:"1", t:"מענים רגשיים-חברתיים אוניברסלי", lvl:"רובד אוניברסלי", audience:"כל הכיתות (15)", prog:"SEL / 'בית ספר שמח'", staff:"כלל המחנכים + יועצת חינוכית", freq:"שעה/שבוע", kpi:"תיעוד ב-100% כיתות", date:"נובמבר" },
-  { p:"2", t:"קבוצות קריאה ממוקדות — שפת אם", lvl:"רובד ממוקד", audience:"ב'2, ג'3, ד'–ה'", prog:"מגדלור / קריאה בשכבה", staff:"רכזת שפה + מחנכת", freq:"3 פעמים/שבוע", kpi:"ירידה ב-10 נקודות", date:"ינואר" },
-  { p:"2", t:"ה'2 — תלמידים עם חשד ללקות למידה", lvl:"רובד אינטנסיבי", audience:"ה'2 — 5 תלמידים", prog:"ועדת שילוב + תגבור", staff:"יועצת חינוכית + פסיכולוגית + הורים", freq:"שוטף", kpi:"כל 5 נדונו בוועדה", date:"דצמבר" },
-  { p:"2", t:"ד'1 — תמיכה בניהול כיתה הטרוגנית", lvl:"רובד ממוקד", audience:"כיתה ד'1 (27 תלמ')", prog:"הוראה מובחנת / מחנכת שותפת", staff:"מחנכת + מחנכת שותפת", freq:"שוטף", kpi:"הפחתת 20% בדיווחי קשב/התנהגות", date:"ינואר" },
-  { p:"2", t:"ו'2 — מוכנות למעבר לחטיבה", lvl:"רובד ממוקד", audience:"כיתה ו'2", prog:"'גשר' — מעבר לחטיבה", staff:"יועצת חינוכית + מחנכת", freq:"שבועי", kpi:"ירידה ל-30% בקושי רגשי", date:"ינואר" },
-  { p:"3", t:"תכנית העשרה — מחוננים ומצטיינים", lvl:"רובד אוניברסלי", audience:"44 מחוננים ומצטיינים", prog:"אגף מחוננים / גפן", staff:"רכזת מחוננים", freq:"שבועי", kpi:"100% עם מענה מתועד", date:"נובמבר" },
-  { p:"3", t:"קשב ופעלתנות — ג'1 ותכנית שכבתית", lvl:"רובד ממוקד", audience:"ג'1, ד', ה' (קשב 25%+)", prog:"כישורי קשב / לגדול", staff:"יועצת חינוכית + מחנכת", freq:"2 פעמים/שבוע", kpi:"ירידת דיווחי קושי 25%", date:"ינואר" },
-  { p:"3", t:"ב'2 — בחינת הפער בשפת האם", lvl:"בדיקה", audience:"ב'2 (36 תלמ')", prog:"ניתוח גורמים + שיחה מקצועית", staff:"מנהלת + מחנכת ב'2", freq:"חד-פעמי", kpi:"זיהוי גורם + תכנית פעולה", date:"אוקטובר" }
+  { p:"1", t:"תכנית עברית כשפה שנייה", lvl:"רובד ממוקד",
+    audience:"שכבות ג'–ו' (ה' — עדיפות ראשונה)",
+    outcome:"הפחתת שיעור המתקשים בעברית כשפה שנייה ב-10 נקודות אחוז בשכבות ג'–ה' עד סוף השנה",
+    prog:"תכנית מפמ\"ר עב' לדוברי ע'",
+    actions:"פתיחת קבוצות קריאה ייעודיות; תיאום עם רכזת השפה; שיבוץ מחנכת שותפת בה'2",
+    staff:"רכזת שפה + מחנכים", freq:"4 ש'/שבוע",
+    kpi:"% מתקשים בעברית כשפה שנייה בשכבות ג'–ה' — ירידה מ-40%+ ל-30% או פחות",
+    assess:"השוואת נתוני כלי העוגן בין תחילת השנה לסוף השנה; תצפיות מחנכת",
+    date:"ינואר", notes:"" },
+
+  { p:"1", t:"חיזוק מעורבות ומוטיבציה — שכבות ד'–ו'", lvl:"רובד אוניברסלי",
+    audience:"כל ד'–ו' (ה'2 — עדיפות ראשונה)",
+    outcome:"עלייה מדידה במוטיבציה ובמעורבות בלמידה בשכבות ד'–ו', באמצעות מענים מותאמים לחוזקות ולתחומי העניין של התלמידים",
+    prog:"פרויקטים מבוססי עניין / גפן",
+    actions:"תכנון יחידות לימוד עם אפשרות בחירה המחוברת לחוזקות; שיחות אישיות שיטתיות עם המחנך; הנחייה למחנכות לתעד חוזקות בכלי העוגן כבסיס לתכנון",
+    staff:"מחנכים + יועצת חינוכית + מנהלת", freq:"שוטף",
+    kpi:"ירידה של 15%+ בדיווחי קשיי מוטיבציה בכלי העוגן בשכבות ד'–ו' בסוף השנה",
+    assess:"מיפוי מחדש בכלי העוגן בצמתי בקרה; שאלון מוטיבציה עצמי-דיווח לתלמידים",
+    date:"אוקטובר", notes:"" },
+
+  { p:"1", t:"מענים רגשיים-חברתיים אוניברסלי", lvl:"רובד אוניברסלי",
+    audience:"כל הכיתות (15)",
+    outcome:"דיוק מתן המענים הרגשיים-חברתיים לפי הצרכים המזוהים של הלומדים, וירידה מדידה בדיווחי הקשיים הרגשיים-חברתיים",
+    prog:"SEL / 'בית ספר שמח'",
+    actions:"שעה כיתתית שבועית מבוססת צרכים מזוהים בכלי העוגן; מיפוי ממוקד של 40 תלמידי קבוצת 'מתקשים חברתית-רגשית' ובניית מענה ייעודי; הכשרת מחנכים",
+    staff:"כלל המחנכים + יועצת חינוכית", freq:"שעה/שבוע",
+    kpi:"ירידה של 15%+ בדיווחי קשיים רגשיים-חברתיים בכלי העוגן; 40 תלמידי המיקוד עם תכנית מענה מותאמת ומתועדת",
+    assess:"מיפוי מחדש בכלי העוגן בצמתי בקרה; שאלון אקלים כיתתי; ניתוח תוכניות מענה",
+    date:"נובמבר", notes:"" },
+
+  { p:"2", t:"קבוצות קריאה ממוקדות — שפת אם", lvl:"רובד ממוקד",
+    audience:"ב'2, ג'3, ד'–ה'",
+    outcome:"ירידה של 10 נקודות אחוז בשיעור המתקשים בשפת האם בכיתות המיועדות",
+    prog:"מגדלור / קריאה בשכבה",
+    actions:"פתיחת קבוצות קריאה (5–6 תלמידים); סדר יום מובנה לקבוצה; תיאום שבועי עם רכזת שפה",
+    staff:"רכזת שפה + מחנכת", freq:"3 פעמים/שבוע",
+    kpi:"% מתקשים בשפת אם בכיתות היעד — ירידה מ-58% (ב'2) ל-48% או פחות",
+    assess:"מבחן קריאה כיתתי בינואר ובסוף השנה; נתוני כלי העוגן",
+    date:"ינואר", notes:"" },
+
+  { p:"2", t:"ה'2 — תלמידים עם חשד ללקות למידה", lvl:"רובד אינטנסיבי",
+    audience:"ה'2 — 5 תלמידים",
+    outcome:"דיוק המענים הניתנים לתלמידים עם חשד ללקות למידה — גם בכיתה וגם מחוץ לבית הספר — באמצעות הפניה לאבחון מקצועי",
+    prog:"ועדת שילוב + תגבור",
+    actions:"הפניה מיידית של 5 התלמידים לאבחון; תיאום עם ההורים; בניית מענה כיתתי מותאם עד לקבלת תוצאות האבחון; דיון בוועדת שילוב",
+    staff:"יועצת חינוכית + פסיכולוגית + הורים", freq:"שוטף",
+    kpi:"5/5 תלמידים הופנו לאבחון; לכל תלמיד תוכנית מענה מתועדת ומדויקת בהתאם לאבחון",
+    assess:"בדיקת פרוטוקולי ועדת שילוב; מעקב אחר יישום המענים בכיתה; תיעוד בכלי העוגן",
+    date:"דצמבר", notes:"" },
+
+  { p:"2", t:"ד'1 — תמיכה בניהול כיתה הטרוגנית", lvl:"רובד ממוקד",
+    audience:"כיתה ד'1 (27 תלמ')",
+    outcome:"הפחתת תלונות על קשיי קשב והתנהגות ב-20%; מחנכת מרגישה נתמכת ויש לה כלים",
+    prog:"הוראה מובחנת / מחנכת שותפת",
+    actions:"צירוף מחנכת שותפת; פגישת הכוונה חודשית עם יועצת; תכנון מטלות מובחנות",
+    staff:"מחנכת + מחנכת שותפת", freq:"שוטף",
+    kpi:"ירידה של 20% בדיווחי קשב/התנהגות בכלי העוגן; דיווח מחנכת על שביעות רצון",
+    assess:"נתוני כלי העוגן; שיחת משוב עם מחנכת",
+    date:"ינואר", notes:"" },
+
+  { p:"2", t:"ו'2 — מוכנות למעבר לחטיבה", lvl:"רובד ממוקד",
+    audience:"כיתה ו'2",
+    outcome:"ירידה בשיעור קשיים רגשיים ל-30% ומטה; תלמידים מרגישים מוכנים למעבר",
+    prog:"'גשר' — מעבר לחטיבה",
+    actions:"מחזורי שיחות כיתתיות על מעבר; הכרת מסגרת חטיבה; ליווי יועצת עם תלמידים בסיכון",
+    staff:"יועצת חינוכית + מחנכת", freq:"שבועי",
+    kpi:"% קשיים רגשיים בכלי העוגן — ירידה מ-48% ל-30% עד סוף שנת הלימודים",
+    assess:"נתוני כלי העוגן; שאלון מוכנות למעבר",
+    date:"ינואר", notes:"" },
+
+  { p:"3", t:"תכנית העשרה — מחוננים ומצטיינים", lvl:"רובד אוניברסלי",
+    audience:"44 מחוננים ומצטיינים",
+    outcome:"100% מהמחוננים והמצטיינים המזוהים עם מענה מתועד ופעיל",
+    prog:"אגף מחוננים / גפן",
+    actions:"מיפוי קיים של 44 תלמידים; בניית תכנית העשרה; תיאום עם מרכזת מחוננים",
+    staff:"רכזת מחוננים", freq:"שבועי",
+    kpi:"44/44 תלמידים עם מענה מתועד בכלי העוגן",
+    assess:"ביקורת תיעוד בכלי העוגן; דיווח רכזת מחוננים",
+    date:"נובמבר", notes:"" },
+
+  { p:"3", t:"קשב ופעלתנות — ג'1 ותכנית שכבתית", lvl:"רובד ממוקד",
+    audience:"ג'1, ד', ה' (קשב 25%+)",
+    outcome:"הקניית פרקטיקות למורות לניהול כיתה הטרוגנית — גיוון מתודות הוראה, העלאת מעורבות הלומדים ויצירת שגרת שיעור מובנית — כך שתלמידים עם קשב יהיו פעילים ומעורבים יותר וניהול השיעור יהיה אפקטיבי יותר",
+    prog:"כישורי קשב / לגדול / UDL",
+    actions:"סדנאות ליווי למחנכות בפרקטיקות ניהול כיתה הטרוגנית; תצפיות ושיחות משוב; גיוון מתודות הוראה וביטוי; בניית רוטינת שיעור מובנית",
+    staff:"יועצת חינוכית + מחנכת", freq:"2 פעמים/שבוע",
+    kpi:"X% מהמורות מדווחות על שיפור בניהול הכיתה ועלייה במעורבות התלמידים; ירידה בדיווחי קשיי קשב בצמתי בקרה",
+    assess:"שאלוני מורות; תצפיות מובנות; נתוני כלי העוגן בצמתי בקרה",
+    date:"ינואר", notes:"" },
+
+  { p:"3", t:"ב'2 — בירור פער בשפת האם לעומת ב'1", lvl:"בירור ואבחון",
+    audience:"ב'2 (36 תלמ')",
+    outcome:"זיהוי הגורמים לפער של 27 נקודות אחוז ב'2 לעומת ב'1 ובניית תכנית פעולה ממוקדת",
+    prog:"ניתוח נתונים + שיחה מקצועית עם מחנכת",
+    actions:"פגישת עיון בנתוני כלי העוגן; שיחת עומק עם מחנכת ב'2; השוואה לנתוני ב'1",
+    staff:"מנהלת + מחנכת ב'2", freq:"חד-פעמי",
+    kpi:"מסמך מסכם עם ממצאים, גורמים מזוהים ותכנית פעולה ממוקדת",
+    assess:"בדיקת יישום תכנית הפעולה חודש לאחר גיבושה",
+    date:"אוקטובר", notes:"" }
 ];
 
 // ═══════════════════════════════════════════════════════
@@ -1061,10 +1152,9 @@ function initCharts(schoolGroups) {
 function getHmClass(v) {
   if (v === null) return 'hm-na';
   if (v <= 15) return 'hm-0';
-  if (v <= 25) return 'hm-1';
-  if (v <= 35) return 'hm-2';
-  if (v <= 49) return 'hm-3';
-  return 'hm-4';
+  if (v <= 35) return 'hm-1';
+  if (v <= 49) return 'hm-2';
+  return 'hm-3';
 }
 function buildHeatmap() {
   const cols = ['שפה','מתמטיקה','עברית_ערבית','אנגלית','מוטיבציה','קשב','התנהגות','רגשי','חברתי','חושי'];
@@ -1165,57 +1255,80 @@ function buildInterventions(filter) {
   const container = document.getElementById('interventionCards');
   container.innerHTML = '';
 
-  if (filter === 'all') {
-    // רובד 1: אוניברסלי — כלל בית הספר
-    const tier1 = interventions.filter(iv => isSchoolWide(iv) && isUniversal(iv));
-    // רובד 2: ממוקד — מספר שכבות (לא בית-ספרי)
-    const tier2 = interventions.filter(iv => !isSchoolWide(iv) && isFocused(iv));
-    // רובד 3: אינטנסיבי — שכבה ספציפית, כיתה, או קבוצה
-    const tier3 = interventions.filter(iv => !isSchoolWide(iv) && isIntensive(iv));
+  // filter is either 'all' or an array of grade strings
+  const grades = filter === 'all' ? null : (Array.isArray(filter) ? filter : [filter]);
+  const isAll  = filter === 'all';
+  const isMulti = grades && grades.length > 1;
+  const gradesLabel = grades ? grades.map(g => `שכבה ${g}'`).join(' + ') : '';
 
-    if (tier1.length) {
-      container.appendChild(mkSectionHeader('🟢', 'רובד אוניברסלי — לכלל בית הספר', '#166534'));
-      tier1.forEach(iv => container.appendChild(buildCard(iv)));
-    }
-    if (tier2.length) {
-      container.appendChild(mkSectionHeader('🟡', 'רובד ממוקד — מספר שכבות', '#B45309'));
-      tier2.forEach(iv => container.appendChild(buildCard(iv)));
-    }
-    if (tier3.length) {
-      container.appendChild(mkSectionHeader('🔴', 'רובד אינטנסיבי — שכבה, כיתות או קבוצת תלמידים ספציפית', '#B91C1C'));
-      tier3.forEach(iv => container.appendChild(buildCard(iv)));
-    }
+  // Tier 1: always show universal school-wide
+  const tier1 = interventions.filter(iv => isSchoolWide(iv) && isUniversal(iv));
 
-  } else {
-    // לחיצה על שכבה ספציפית
-    // רובד 1: אוניברסלי בית-ספרי — תמיד רלוונטי
-    const tier1 = interventions.filter(iv => isSchoolWide(iv) && isUniversal(iv));
-    // רובד 2: ממוקד — כולל את השכבה הזו (רב-שכבתי)
-    const tier2 = interventions.filter(iv => !isSchoolWide(iv) && isFocused(iv) && iv.grades.includes(filter));
-    // רובד 3: אינטנסיבי — ספציפי לשכבה זו
-    const tier3 = interventions.filter(iv => !isSchoolWide(iv) && isIntensive(iv) && iv.grades.includes(filter));
+  // Tier 2: focused (multi-grade)
+  const tier2 = isAll
+    ? interventions.filter(iv => !isSchoolWide(iv) && isFocused(iv))
+    : interventions.filter(iv => !isSchoolWide(iv) && isFocused(iv) &&
+        iv.grades.some(g => grades.includes(g)));
 
-    if (tier1.length) {
-      container.appendChild(mkSectionHeader('🟢', `רובד אוניברסלי — לכלל בית הספר (רלוונטי גם לשכבה ${filter}')`, '#166534'));
-      tier1.forEach(iv => container.appendChild(buildCard(iv)));
-    }
-    if (tier2.length) {
-      container.appendChild(mkSectionHeader('🟡', `רובד ממוקד — שכבה ${filter}' ושכבות נוספות`, '#B45309'));
-      tier2.forEach(iv => container.appendChild(buildCard(iv)));
-    }
-    if (tier3.length) {
-      container.appendChild(mkSectionHeader('🔴', `רובד אינטנסיבי — ייעודי לשכבה ${filter}'`, '#B91C1C'));
-      tier3.forEach(iv => container.appendChild(buildCard(iv)));
-    }
-    if (!tier1.length && !tier2.length && !tier3.length) {
-      container.innerHTML = `<div style="color:var(--gray-400);font-size:13px;padding:20px 0;">אין המלצות התערבות ספציפיות לשכבה זו.</div>`;
-    }
+  // Tier 3: intensive (specific grade/class)
+  const tier3 = isAll
+    ? interventions.filter(iv => !isSchoolWide(iv) && isIntensive(iv))
+    : interventions.filter(iv => !isSchoolWide(iv) && isIntensive(iv) &&
+        iv.grades.some(g => grades.includes(g)));
+
+  const t1Label = isAll ? 'רובד אוניברסלי — לכלל בית הספר'
+    : `רובד אוניברסלי — לכלל בית הספר (רלוונטי גם ל${gradesLabel})`;
+  const t2Label = isAll ? 'רובד ממוקד — מספר שכבות'
+    : `רובד ממוקד — ${gradesLabel}${isMulti ? '' : ' ושכבות נוספות'}`;
+  const t3Label = isAll ? 'רובד אינטנסיבי — שכבה, כיתות או קבוצת תלמידים ספציפית'
+    : `רובד אינטנסיבי — ייעודי ל${gradesLabel}`;
+
+  if (tier1.length) {
+    container.appendChild(mkSectionHeader('🟢', t1Label, '#166534'));
+    tier1.forEach(iv => container.appendChild(buildCard(iv)));
+  }
+  if (tier2.length) {
+    container.appendChild(mkSectionHeader('🟡', t2Label, '#B45309'));
+    tier2.forEach(iv => container.appendChild(buildCard(iv)));
+  }
+  if (tier3.length) {
+    container.appendChild(mkSectionHeader('🔴', t3Label, '#B91C1C'));
+    tier3.forEach(iv => container.appendChild(buildCard(iv)));
+  }
+  if (!tier1.length && !tier2.length && !tier3.length) {
+    container.innerHTML = `<div style="color:var(--gray-400);font-size:13px;padding:20px 0;">אין המלצות התערבות ספציפיות לשכבות שנבחרו.</div>`;
   }
 }
+// Multi-select grade filter
+let selectedGrades = new Set(['all']);
+
 function filterGrade(g, btn) {
-  document.querySelectorAll('#gradeFilter .grade-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  buildInterventions(g);
+  if (g === 'all') {
+    // Reset all → select "all"
+    selectedGrades = new Set(['all']);
+    document.querySelectorAll('#gradeFilter .grade-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  } else {
+    // Toggle this grade
+    if (selectedGrades.has('all')) {
+      // First specific grade selected — leave 'all' mode
+      selectedGrades.delete('all');
+      document.querySelector('#gradeFilter [data-grade="all"]').classList.remove('active');
+    }
+    if (selectedGrades.has(g)) {
+      selectedGrades.delete(g);
+      btn.classList.remove('active');
+    } else {
+      selectedGrades.add(g);
+      btn.classList.add('active');
+    }
+    // If nothing selected, revert to 'all'
+    if (selectedGrades.size === 0) {
+      selectedGrades.add('all');
+      document.querySelector('#gradeFilter [data-grade="all"]').classList.add('active');
+    }
+  }
+  buildInterventions(selectedGrades.has('all') ? 'all' : [...selectedGrades]);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1467,7 +1580,11 @@ function buildPlanTable() {
 
   planRows.forEach((row, i) => {
     const tr = document.createElement('tr');
-    const getVal = col => (savedData[i] && savedData[i][col] != null) ? savedData[i][col] : (row[col] || '');
+    const getVal = col => {
+      if (savedData[i] && savedData[i][col] != null) return savedData[i][col];
+      if (col === 'notes') return '';  // notes always starts empty
+      return row[col] || '';
+    };
 
     const editStyle = 'min-width:80px;outline:none;cursor:text;';
     const mkEdit = col => `<td contenteditable="true" data-row="${i}" data-col="${col}"
@@ -1476,12 +1593,14 @@ function buildPlanTable() {
     tr.innerHTML = `
       <td class="${priColors[row.p]}">${priLabels[row.p]}</td>
       <td style="font-weight:600;">${row.t}</td>
-      <td><span class="badge ${row.p==='1'?'badge-red':row.p==='2'?'badge-amber':'badge-teal'}">${row.lvl}</span></td>
+      <td><span class="badge ${row.p==='1'?'badge-red':row.p==='2'?'badge-amber':row.lvl==='בירור ואבחון'?'badge-gray':'badge-teal'}">${row.lvl}</span></td>
       <td>${row.audience}</td>
+      ${mkEdit('outcome')}
       ${mkEdit('prog')}
+      ${mkEdit('actions')}
       ${mkEdit('staff')}
       ${mkEdit('freq')}
-      ${mkEdit('kpi')}
+      ${mkEdit('assess')}
       ${mkEdit('date')}
       ${mkEdit('notes')}`;
     tbody.appendChild(tr);
@@ -1492,6 +1611,13 @@ function buildPlanTable() {
     cell.addEventListener('focus', () => cell.style.background = '#FFFBEB');
     cell.addEventListener('blur',  () => cell.style.background = '');
   });
+}
+
+function clearNotes() {
+  document.querySelectorAll('#planBody [data-col="notes"]').forEach(cell => cell.innerText = '');
+  const status = document.getElementById('saveStatus');
+  status.textContent = '✓ עמודת ההערות נוקתה';
+  setTimeout(() => status.textContent = '', 2500);
 }
 
 function getSavedData() {
